@@ -18,6 +18,8 @@ Route::resource('units', 'UnitController', ['as' => 'api']);
 
 Route::resource('owners', 'OwnerController', ['as' => 'api']);
 
+Route::resource('tenants', 'TenantController', ['as' => 'api']);
+
 /*
 |--------------------------------------------------------------------------
 | Calendar Event & Mod Price Routes (Used on Unit Calendar Page)

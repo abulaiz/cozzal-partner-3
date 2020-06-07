@@ -52,7 +52,7 @@ class CreateMasterDataTables extends Migration
             $table->string('name',70);
             $table->string('email',35)->nullable();
             $table->string('phone',25);
-            $table->char('gender',1);
+            $table->string('gender', 50);
             $table->string('address',100);
             $table->string('last_stays');
             $table->timestamps();

@@ -7,6 +7,18 @@
 
       <li class=" nav-item">
         <a>
+          <i class="icon-note"></i>
+          <span class="menu-title">Booking Data</span>
+        </a>
+        <ul class="menu-content">
+           <li class="menu-item @yield('create_booking')"><a href="{{ route('booking.create') }}" >Create Booking</a></li>
+           <li class="menu-item @yield('booking_list')"><a href="{{ route('expenditure') }}">Booking List</a></li>
+           </a></li>
+        </ul>
+      </li>
+
+      <li class=" nav-item">
+        <a>
           <i class="icon-share-alt"></i>
           <span class="menu-title">Expenditures</span>
           <!--<span class="dbadge badge badge-danger float-right mr-2" id="expenditures_badge">N</span>-->

@@ -30,6 +30,7 @@
         "vue-dynamic-select": "^1.0.16",
         "vue-echarts": "^5.0.0-beta.0",
         "vue-loaders": "^4.0.0-alpha.2",
+        "vue-phone-number-input": "^1.1.9",
         "vue2-datepicker": "^3.5.0"
     }
 }
