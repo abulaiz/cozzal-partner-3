@@ -32,6 +32,52 @@
             <h6>Step 2</h6>
             <fieldset>
               <div class="row" id="_step2">
+                <div class="col-md-6" v-if="type.id == 2">
+                  <div class="form-group">
+                    <label>Check in  </label>
+                    <div>
+                      <date-picker format="DD-MM-YYYY" value-type="YYYY-MM-DD" v-model="date" :disabled-date="notBeforeToday"></date-picker>
+                    </div>
+                  </div>
+                </div>                 
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Guest Count </label>
+                    <input type="number" min="1" class="form-control" v-model="guest">
+                  </div>
+                </div>               
+                <div class="col-md-6" v-if="necessary.id == 2">
+                  <div class="form-group">
+                      <label>Apartment</label>
+                      <div>
+                          <dynamic-select 
+                              :options="option.apartments"
+                              option-value="id"
+                              option-text="name"
+                              placeholder="Type to search"
+                              v-model="apartment" />                    
+                      </div>
+                  </div>
+                </div>
+                <div class="col-md-6" v-if="necessary.id == 2 && unit_loaded">
+                  <div class="form-group">
+                      <label>Unit</label>
+                      <div>
+                          <dynamic-select 
+                              :options="option.units"
+                              option-value="id"
+                              option-text="unit_number"
+                              placeholder="Type to search"
+                              v-model="unit" />                    
+                      </div>
+                  </div>
+                </div>                                           
+              </div>
+            </fieldset>
+
+            <h6>Step 3</h6>
+            <fieldset>
+              <div class="row" id="_step3">                           
                 <div class="col-md-6" v-if="necessary.id == 2">
                   <div class="form-group">
                       <label>Apartment</label>
@@ -60,47 +106,12 @@
                 </div>  
                 <div class="col-md-6">
                   <div class="form-group">
-                      <label>Price (IDR)</label>
-                      <div>
-                          <cleave class="form-control" v-model="price" :options="cleaveOption"></cleave>
-                      </div>
-                  </div>                  
-                </div>              
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Qty </label>
-                    <input type="number" min="1" class="form-control" v-model="qty">
+                    <label>Guest Count </label>
+                    <input type="number" min="1" class="form-control" v-model="guest">
                   </div>
-                </div>
-                <div class="col-md-6" v-if="type.id == 2">
-                  <div class="form-group">
-                    <label>Due at </label>
-                    <div>
-                      <date-picker format="DD-MM-YYYY" value-type="YYYY-MM-DD" v-model="due_at" :disabled-date="notBeforeToday"></date-picker>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6" v-if="type.id == 1">
-                  <div class="form-group">
-                      <label>Source Fund</label>
-                      <div>
-                          <dynamic-select 
-                              :options="option.cashes"
-                              option-value="id"
-                              option-text="name"
-                              placeholder="Type to search"
-                              v-model="cash" />                    
-                      </div>
-                  </div>
-                </div>  
-                <div class="col-md-6">
-                  <div class="form-group">
-                    <label>Short Description </label>
-                    <input type="text" v-model="description" required class="form-control" placeholder="Exependiture Description" maxlength="50">           
-                  </div>
-                </div>                                          
+                </div>                                                          
               </div>
-            </fieldset>             
+            </fieldset>                         
           </div>       
         </div>
       </div>

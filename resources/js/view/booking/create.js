@@ -72,14 +72,7 @@ function form_onsubmit(state = true){
 function submit(){
     form_onsubmit();
     axios.post(_URL.store , {
-        price : step2.$data.price,
-        qty : step2.$data.qty,
-        description : step2.$data.description,
-        cash_id : step2.$data.cash == null ? null : step2.$data.cash.id,
-        due_at : step2.$data.due_at,
-        unit_id : step2.$data.unit == null ? null : step2.$data.unit.id,
-        expenditure_type : step2.$data.type.id.toString(),
-        expenditure_necessary : step2.$data.necessary.id.toString()
+
     }).then(function (response) {
         let res = response.data;
         if(res.success){
@@ -105,6 +98,7 @@ $(".number-tab-steps").steps({
     },
     onStepChanging: function (event, currentIndex, newIndex)
     {
+        if( currentIndex > newIndex ) return true;
         if(currentIndex == 0 ){
             return step1_validation();
         }
@@ -119,10 +113,7 @@ $(".number-tab-steps").steps({
 
 var step1 = new Vue({
     el : "#_step1",
-    data : {
-        url : _URL,
-        tenant_id : null
-    },
+    data : { url : _URL, tenant_id : null },
     methods : {
         setTenant : function(tenant_id){
             this.tenant_id = tenant_id;
