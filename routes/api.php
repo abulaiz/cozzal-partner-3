@@ -76,3 +76,14 @@ Route::resource('expenditures', 'ExpenditureController', ['as' => 'api'])->excep
 ]);
 // Custom Expenditure Index Routes
 Route::get('expenditures/{type}', 'ExpenditureController@index')->name('api.expenditures.index');
+
+/*
+|--------------------------------------------------------------------------
+| Unit Utility for Create Booking Data
+|--------------------------------------------------------------------------
+*/
+
+// Availabe Unit List (By Apartment Id)
+Route::post('unit/availability', 'UnitController@available_unit')->name('api.unit.availability');
+// Unit Price Mods
+Route::post('unit/mod_prices', 'UnitController@prices_mod')->name('api.unit.mod_prices');

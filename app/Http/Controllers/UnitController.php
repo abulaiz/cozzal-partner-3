@@ -6,9 +6,18 @@ use Illuminate\Http\Request;
 use App\Models\Unit;
 use Datatables;
 use Validator;
+use App\Libs\UnitUtility;
 
 class UnitController extends Controller
 {
+    private $unit_utility;
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->unit_utility = new UnitUtility();        
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -38,6 +47,20 @@ class UnitController extends Controller
                             ->rawColumns(['_action', 'rent_price', 'owner_rent_price', 'see_more'])        
                             ->make(true);        
     }
+
+    public function available_unit(Request $request){
+        $apartment_id = $request->apartment_id;
+        $check_in = $request->check_in;
+        $check_out = $request->check_out;
+        return response()->json( $this->unit_utility->available_unit($apartment_id, $check_in, $check_out) );
+    } 
+
+    public function prices_mod(Request $request){
+        $unit_id = $request->unit_id;
+        $check_in = $request->check_in;
+        $check_out = $request->check_out;
+        return response()->json( $this->unit_utility->mods_price_list($unit_id, $check_in, $check_out) );
+    } 
 
     /**
      * Show the form for creating a new resource.
@@ -163,6 +186,8 @@ class UnitController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = Unit::find($id);
+        $data->delete();
+        return response()->json(['success' => true]);
     }
 }
