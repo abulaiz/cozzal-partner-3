@@ -87,3 +87,11 @@ Route::get('expenditures/{type}', 'ExpenditureController@index')->name('api.expe
 Route::post('unit/availability', 'UnitController@available_unit')->name('api.unit.availability');
 // Unit Price Mods
 Route::post('unit/mod_prices', 'UnitController@prices_mod')->name('api.unit.mod_prices');
+
+/*
+|--------------------------------------------------------------------------
+| Booking and Reservation Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::resource('booking', 'BookingController', ['as' => 'api']);

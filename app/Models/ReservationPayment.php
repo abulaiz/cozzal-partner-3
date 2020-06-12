@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class ReservationPayment extends Model
 {
-    //
+    protected $guarded = [''];
 }

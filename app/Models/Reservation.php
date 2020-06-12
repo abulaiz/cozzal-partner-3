@@ -6,5 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
-    //
+    protected $guarded = [''];
+
+    public function tenant(){
+    	return $this->belongsTo('App\Models\Tenant');
+    }
+
+    public function unit(){
+    	return $this->belongsTo('App\Models\Unit');
+    }    
 }

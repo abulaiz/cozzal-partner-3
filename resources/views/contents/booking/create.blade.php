@@ -183,7 +183,48 @@
             <!-- Step 5 -->
             <h6><i class="step-icon fa fa-check-square"></i>Step 5</h6>
             <fieldset>
-              
+              <div class="row" id="_step5">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Booking Via :</label>
+                    <div>
+                        <dynamic-select 
+                            :options="option.booking_vias"
+                            option-value="id"
+                            option-text="name"
+                            placeholder="Type to search"
+                            v-model="booking_via" />                    
+                    </div>
+                  </div>
+                </div>   
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>DP Via :</label>
+                    <div>
+                        <dynamic-select 
+                            :options="option.cashes"
+                            option-value="id"
+                            option-text="name"
+                            placeholder="Type to search"
+                            v-model="cash" />                    
+                    </div>
+                  </div>
+                </div>  
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label><strong>DP :</strong></label>
+                    <cleave class="form-control" v-model="dp" 
+                    :options="cleave"></cleave>
+                  </div>
+                </div> 
+                <div class="col-md-6"></div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Note :</label>
+                    <textarea class="form-control" v-model="note"></textarea>
+                  </div>
+                </div>    
+              </div>
             </fieldset>
 
           </div>       
@@ -197,9 +238,11 @@
   <p id="api-tenants-index">{{ route('api.tenants.index') }}</p>
   <p id="api-tenants-store">{{ route('api.tenants.store') }}</p>
   <p id="api-apartments">{{ route('api.apartments.index') }}</p>
+  <p id="api-booking_vias">{{ route('api.booking_vias.index') }}</p>
+  <p id="api-cashes">{{ route('api.cashes.index') }}</p>
   <p id="api-units">{{ route('api.unit.availability') }}</p>
   <p id="api-mod-prices">{{ route('api.unit.mod_prices') }}</p>
-  <p id=""></p>
+  <p id="api-booking-store">{{ route('api.booking.store') }}</p>
 </div>
 
 @endsection 

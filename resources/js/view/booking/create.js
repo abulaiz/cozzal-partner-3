@@ -32,28 +32,50 @@ var _URL = {};
 _URL['tenant_index'] = $("#api-tenants-index").text();
 _URL['tenant_store'] = $("#api-tenants-store").text();
 _URL['apartment'] = $("#api-apartments").text();
+_URL['booking_via'] = $("#api-booking_vias").text();
+_URL['cash'] = $("#api-cashes").text();
 _URL['unit'] = $("#api-units").text();
 _URL['mod_prices'] = $("#api-mod-prices").text();
+_URL['store'] = $("#api-booking-store").text();
 
 $(".rm").remove();
 
 var submit_attempt = 0;
 const Helper = new PriceHelper();
 Helper.setURL(_URL);
+var unvalidate = {};
 
 function _catch_with_toastr(message){
     _leftAlert('Sorry !', message, 'error', false);
     return false;
 }
 
-function step1_validation(){
-    let data = step1.$data;
-    if(data.tenant_id == null) 
-        return _catch_with_toastr("Please select tenant first");
-
+function step1_validation(data = step1.$data){
+    if(data.tenant_id == null)  return _catch_with_toastr("Please select tenant first");
     return true;
 }
 
+function step2_validation(data = step2.$data){
+   if(data.check_in == null)  return _catch_with_toastr("Check in required");
+   if(data.check_out == null)  return _catch_with_toastr("Check out required");
+   return true;
+}
+
+function step3_validation(data = step3.$data){
+    if(data.guest_count <= 0) return _catch_with_toastr("Please insert valid guest count");
+    if(data.unit == null || data.unit == {}) return _catch_with_toastr("Unit required");
+    return true;
+}
+
+function step5_validation(data = step5.$data){ 
+    if(data.booking_via == null || data.booking_via == {}) 
+        return _catch_with_toastr("Booking Via required");
+    if(data.cash == null || data.cash == {})
+        return _catch_with_toastr("DP Via required");
+    if(step4.$data.price.deposite > 0 && data.dp < step4.$data.price.deposite)
+        return _catch_with_toastr("DP can'nt least from deposite");    
+    return true;
+}
 
 function form_onsubmit(state = true){
     submit_attempt++;
@@ -78,7 +100,29 @@ function form_onsubmit(state = true){
 function submit(){
     form_onsubmit();
     axios.post(_URL.store , {
-
+        amount_bill : step4.$data.price.amount_bill,
+        normal_amount_bill : step4.$data.price.normal_amount_bill,
+        dp : step5.$data.dp,
+        deposite : step4.$data.deposite,
+        tenant_id : step1.$data.tenant_id,
+        unit_id : step3.$data.unit.id,
+        booking_via_id : step5.$data.booking_via.id,
+        check_in : step2.$data.check_in,
+        check_out : step2.$data.check_out,
+        guest : step3.$data.guest_count,
+        note : step5.$data.note,
+        owner_weekday_price : step4.$data.price.owner_weekday_price,
+        owner_weekend_price : step4.$data.price.owner_weekend_price,
+        owner_weeky_price : step4.$data.price.owner_weeky_price,
+        owner_monthly_price : step4.$data.price.owner_monthly_price,
+        owner_price_total : step4.$data.price.owner_price_total,
+        rent_weekday_price : step4.$data.price.rent_weekday_price,
+        rent_weekend_price : step4.$data.price.rent_weekend_price,
+        rent_weekly_price : step4.$data.price.rent_weekly_price,
+        rent_monthly_price : step4.$data.price.rent_monthly_price,
+        rent_price_total : step4.$data.price.rent_price_total,
+        charge : step4.$data.price.charge,
+        cash_id : step5.$data.cash.id
     }).then(function (response) {
         let res = response.data;
         if(res.success){
@@ -95,24 +139,39 @@ function submit(){
 }
 
 $(".number-tab-steps").steps({
-    headerTag: "h6",
-    bodyTag: "fieldset",
-    transitionEffect: "fade",
-    titleTemplate: '<span class="step">#index#</span> #title#',
+    headerTag: "h6", bodyTag: "fieldset",
+    transitionEffect: "fade", titleTemplate: '<span class="step">#index#</span> #title#',
     labels: {
         finish: 'Submit'
     },
     onStepChanging: function (event, currentIndex, newIndex)
     {
-        if( currentIndex > newIndex ) return true;
-        if(currentIndex == 0 ){
-            return step1_validation();
+        if( currentIndex < newIndex ) {
+            if(unvalidate[currentIndex]) unvalidate[currentIndex] = false;
+            if(currentIndex == 0 ) return step1_validation();
+            if(currentIndex == 1 ) return step2_validation();
+            if(currentIndex == 2 ) return step3_validation();
+        } else {
+            unvalidate[currentIndex] = true;
         }
         return true;
     },       
     onFinishing: function (event, currentIndex)
     {
-        submit();
+        let idx = Object.keys(unvalidate);
+        for(let i in idx){
+            if(!unvalidate[idx[i]]) continue;
+            let ret = true;
+            if(idx[i] == 0 ) ret = ret && step1_validation();
+            if(idx[i] == 1 ) ret = ret && step2_validation();
+            if(idx[i] == 2 ) ret = ret && step3_validation();
+            if(!ret){
+                $("#steps-uid-0-t-"+idx[i]).click();
+                return false;
+            }           
+        }
+        if(step5_validation())
+            submit();
         return true;
     }
 });
@@ -133,8 +192,8 @@ var step1 = new Vue({
 var step2 = new Vue({
     el : "#_step2",
     data : {
-        check_in : '',
-        check_out : '',
+        check_in : null,
+        check_out : null,
         skip_watch_days : false,
         skip_watch_check_out : false,
         days : null,
@@ -169,11 +228,13 @@ var step2 = new Vue({
             this.days = 1;
         },
         check_out : function(val){
+            if(val == null) return;
+
             Helper.setDate(this.check_in, val)
 
             if(this.skip_watch_check_out) {this.skip_watch_check_out = false; return;};
             
-            if(this.check_in == '') { this.check_out = ''; _leftAlert('Error !', 'Please set check in please', 'error', false);  return; }
+            if(this.check_in == null) { this.check_out = null; _leftAlert('Error !', 'Please set check in please', 'error', false);  return; }
             
             let e = this;
             this.skip_watch_days = true;
@@ -276,7 +337,8 @@ var step4 = new Vue({
             deposite : 0,
             rent_price_total : 0,
             owner_price_total : 0,
-            amount_bill : 0        
+            amount_bill : 0,
+            normal_amount_bill : 0  // legacy amount bill (not edited by user)     
         },
         cleave : {
             numeral: true,
@@ -323,6 +385,28 @@ var step4 = new Vue({
             if(this.prevent_cleave_changed) return;
             this.cleaveDebounce2()
         });                
+    }
+})
+
+var step5 = new Vue({
+    el : "#_step5",
+    data : {
+        option : {
+            booking_vias : [],
+            cashes : []
+        },
+        booking_via : null,
+        cash : null,
+        dp : 0,
+        note : '',
+        cleave : {
+            numeral: true,
+            numeralThousandsGroupStyle: 'thousand'       
+        }        
+    },
+    created : function(){
+        axios.get(_URL.cash).then( (response) => { this.option.cashes = response.data })
+        axios.get(_URL.booking_via).then( (response) => { this.option.booking_vias = response.data.data })
     }
 })
 

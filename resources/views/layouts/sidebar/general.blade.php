@@ -12,7 +12,7 @@
         </a>
         <ul class="menu-content">
            <li class="menu-item @yield('create_booking')"><a href="{{ route('booking.create') }}" >Create Booking</a></li>
-           <li class="menu-item @yield('booking_list')"><a href="{{ route('expenditure') }}">Booking List</a></li>
+           <li class="menu-item @yield('booking_list')"><a href="{{ route('booking') }}">Booking List</a></li>
            </a></li>
         </ul>
       </li>

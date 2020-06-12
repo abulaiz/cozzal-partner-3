@@ -166,6 +166,10 @@ class PriceHelper {
 
 		this.prices['amount_bill'] = Number(this.prices['charge']) + Number(this.prices['deposite']) + Number(this.prices['rent_price_total'])		
 		
+		if(default_price == null) 
+			this.prices['normal_amount_bill'] = this.prices['amount_bill'];
+
+		console.log(this.prices['normal_amount_bill'])
 		if(this.events.updatePricingField !== null)
 			this.events.updatePricingField(this.prices)
 	}

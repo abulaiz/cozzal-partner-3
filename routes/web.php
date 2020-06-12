@@ -53,6 +53,8 @@ Route::group(['middleware' => ['auth']], function () {
 	// Approval Expenditure List
 	Route::get('/expenditure/approval', function(){ return view('contents.expenditure.approval'); })->name('expenditure.approval');
 
+	// Booking List Page
+	Route::get('/booking', function(){ return view('contents.booking.index'); })->name('booking');
 	// Create Booking Page
 	Route::get('/booking/create', function(){ return view('contents.booking.create'); })->name('booking.create');
 });

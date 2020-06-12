@@ -25,4 +25,5 @@ const _assets = 'public/js/view';
 // mix.js(_res+'/expenditure/create.js', _assets+'/expenditure/create.js').sourceMaps()
 // mix.js(_res+'/expenditure/index.js', _assets+'/expenditure/index.js').sourceMaps()
 // mix.js(_res+'/expenditure/approval.js', _assets+'/expenditure/approval.js').sourceMaps()
-mix.js(_res+'/booking/create.js', _assets+'/booking/create.js').sourceMaps()
+// mix.js(_res+'/booking/create.js', _assets+'/booking/create.js').sourceMaps()
+mix.js(_res+'/booking/index.js', _assets+'/booking/index.js').sourceMaps()
