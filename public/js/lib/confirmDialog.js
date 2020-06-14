@@ -4,7 +4,7 @@ function getSwalBody(title, text){
 	return {
 		title : title,
 		text : text,
-		icon : 'info',
+		icon : 'warning',
 		buttons : true,
 		dangerMode : true
 	}

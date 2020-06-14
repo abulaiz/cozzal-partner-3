@@ -17,6 +17,13 @@
         </ul>
       </li>
 
+      <li class=" nav-item"><a><i class="icon-book-open"></i><span class="menu-title">Reservations</span></a>
+        <ul class="menu-content">
+          <li class="menu-item @yield('confirmed_reservation')"><a href="{{route('reservation.confirmed')}}" >Confirmed Reservation</a></li>
+           <li class="menu-item @yield('canceled_reservation')"><a href="{{route('reservation.canceled')}}" >Canceled Reservation</a></li>
+        </ul>
+      </li>
+
       <li class=" nav-item">
         <a>
           <i class="icon-share-alt"></i>

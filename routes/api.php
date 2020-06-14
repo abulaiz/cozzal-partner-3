@@ -94,4 +94,21 @@ Route::post('unit/mod_prices', 'UnitController@prices_mod')->name('api.unit.mod_
 |--------------------------------------------------------------------------
 */
 
+// Booking Payment Info
+Route::get('booking/payment/{id}', 'BookingController@payment_info')->name('api.booking.payment');
+// Make Booking Payment
+Route::post('booking/payment', 'BookingController@store_payment')->name('api.booking.payment.store');
+// Setllement Deposit
+Route::post('booking/settlementDeposit', 'BookingController@settlementDeposit')
+		->name('api.booking.settlement.deposit');
+// Setllement Deposit
+Route::post('booking/settlementDp', 'BookingController@settlementDp')
+		->name('api.booking.settlement.dp');		
+// Confirm Booking
+Route::post('booking/confirm', 'BookingController@confirm')->name('api.booking.confirm');
+// Basic Booking Resource
 Route::resource('booking', 'BookingController', ['as' => 'api']);
+// Confirmed reservation
+Route::get('reservation/confirmed', 'ReservationController@confirmed')->name('api.reservation.confirmed');
+// Canceled reservation
+Route::get('reservation/canceled', 'ReservationController@canceled')->name('api.reservation.canceled');

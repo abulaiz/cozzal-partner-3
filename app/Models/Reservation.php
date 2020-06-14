@@ -15,4 +15,14 @@ class Reservation extends Model
     public function unit(){
     	return $this->belongsTo('App\Models\Unit');
     }    
+
+    public function booking_via()
+    {
+        return $this->belongsTo('App\Models\Booking_via');
+    }
+
+    public function payment()
+    {
+        return $this->hasMany('App\Models\ReservationPayment');
+    }
 }

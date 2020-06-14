@@ -103,7 +103,7 @@ function submit(){
         amount_bill : step4.$data.price.amount_bill,
         normal_amount_bill : step4.$data.price.normal_amount_bill,
         dp : step5.$data.dp,
-        deposite : step4.$data.deposite,
+        deposite : step4.$data.price.deposite,
         tenant_id : step1.$data.tenant_id,
         unit_id : step3.$data.unit.id,
         booking_via_id : step5.$data.booking_via.id,
@@ -132,10 +132,10 @@ function submit(){
             for(let i in res.errors){
                 _leftAlert('Warning !', res.errors[i], 'warning', false);
             }
+            form_onsubmit(false);
         }
     })
-    .catch(function(){ form_onsubmit(false); _leftAlert('Error', 'Something wrong, try again', 'error'); })  
-    .then(function(){ form_onsubmit(false); })
+    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
 }
 
 $(".number-tab-steps").steps({

@@ -151,7 +151,7 @@ class CashController extends Controller
         $e = $this;
         return Datatables::of(CashMutation::all())
                             ->addColumn('_date', function($row){
-                                return substr($row->created_at, 0, 10);
+                                return $row->created_at;
                             })       
                             ->addColumn('_cash', function($row){
                                 return $row->cash->name;

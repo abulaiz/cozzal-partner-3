@@ -29,7 +29,7 @@ class CashUtility
     		"10" => 'Unit Expenditure',
     		"11" => "General Expenditure",
     		"12" => "Deposite : COZ-",
-    		"13" => "Setlement Deposite : COZ-"
+    		"13" => "Setlement Deposit : COZ-"
     	];
 
     	$ket = $desc[$id];

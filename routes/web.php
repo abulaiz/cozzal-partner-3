@@ -57,4 +57,12 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/booking', function(){ return view('contents.booking.index'); })->name('booking');
 	// Create Booking Page
 	Route::get('/booking/create', function(){ return view('contents.booking.create'); })->name('booking.create');
+	// Confirmed Reservation
+	Route::get('/reservation/confirmed', function(){
+		return view('contents.reservation.confirmed');
+	})->name('reservation.confirmed');
+	// Canceled Reservation
+	Route::get('/reservation/canceled', function(){
+		return view('contents.reservation.canceled');
+	})->name('reservation.canceled');	
 });
