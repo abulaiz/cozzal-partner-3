@@ -112,3 +112,7 @@ Route::resource('booking', 'BookingController', ['as' => 'api']);
 Route::get('reservation/confirmed', 'ReservationController@confirmed')->name('api.reservation.confirmed');
 // Canceled reservation
 Route::get('reservation/canceled', 'ReservationController@canceled')->name('api.reservation.canceled');
+// Settlement DP
+Route::post('reservation/settlement', 'ReservationController@settlement')->name('api.reservation.settlement');
+// Delete Canceled Reservation
+Route::post('reservation/destroy', 'ReservationController@destroy')->name('api.reservation.destroy');

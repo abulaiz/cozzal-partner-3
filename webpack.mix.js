@@ -27,5 +27,5 @@ const _assets = 'public/js/view';
 // mix.js(_res+'/expenditure/approval.js', _assets+'/expenditure/approval.js').sourceMaps()
 // mix.js(_res+'/booking/create.js', _assets+'/booking/create.js').sourceMaps()
 // mix.js(_res+'/booking/index.js', _assets+'/booking/index.js').sourceMaps()
-mix.js(_res+'/reservation/confirmed.js', _assets+'/reservation/confirmed.js').sourceMaps()
-// mix.js(_res+'/reservation/canceled.js', _assets+'/reservation/canceled.js').sourceMaps()
+// mix.js(_res+'/reservation/confirmed.js', _assets+'/reservation/confirmed.js').sourceMaps()
+mix.js(_res+'/reservation/canceled.js', _assets+'/reservation/canceled.js').sourceMaps()
