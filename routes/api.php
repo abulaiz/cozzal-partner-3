@@ -116,3 +116,11 @@ Route::get('reservation/canceled', 'ReservationController@canceled')->name('api.
 Route::post('reservation/settlement', 'ReservationController@settlement')->name('api.reservation.settlement');
 // Delete Canceled Reservation
 Route::post('reservation/destroy', 'ReservationController@destroy')->name('api.reservation.destroy');
+
+/*
+|--------------------------------------------------------------------------
+| Payment Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::get('payment', 'PaymentController@index')->name('api.payment');

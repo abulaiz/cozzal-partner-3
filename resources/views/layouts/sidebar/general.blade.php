@@ -5,11 +5,7 @@
       <li class=" nav-item @yield('dashboard')"><a href="{{URL::to('dashboard')}}" ><i class="icon-home"></i><span class="menu-title">Dashboard</span></a>
       </li>
 
-      <li class=" nav-item">
-        <a>
-          <i class="icon-note"></i>
-          <span class="menu-title">Booking Data</span>
-        </a>
+      <li class=" nav-item"><a><i class="icon-note"></i><span class="menu-title">Booking Data</span></a>
         <ul class="menu-content">
            <li class="menu-item @yield('create_booking')"><a href="{{ route('booking.create') }}" >Create Booking</a></li>
            <li class="menu-item @yield('booking_list')"><a href="{{ route('booking') }}">Booking List</a></li>
@@ -24,12 +20,7 @@
         </ul>
       </li>
 
-      <li class=" nav-item">
-        <a>
-          <i class="icon-share-alt"></i>
-          <span class="menu-title">Expenditures</span>
-          <!--<span class="dbadge badge badge-danger float-right mr-2" id="expenditures_badge">N</span>-->
-        </a>
+      <li class=" nav-item"><a><i class="icon-share-alt"></i><span class="menu-title">Expenditures</span></a>
         <ul class="menu-content">
            <li class="menu-item @yield('create_expenditure')"><a href="{{ route('expenditure.create') }}" >Create Expenditure</a></li>
            <li class="menu-item @yield('expenditure_list')"><a href="{{ route('expenditure') }}">Expenditure List</a></li>
@@ -37,6 +28,9 @@
             <!--<span class="dbadge badge badge-danger float-right mr-2" id="apprv_badge"></span>-->
            </a></li>
         </ul>
+      </li>
+
+      <li class=" nav-item @yield('payment')"><a href="{{ route('payment') }}" ><i class="icon-docs"></i><span class="menu-title">Owner Payment</span></a>
       </li>
 
       <li class=" nav-item @yield('cashes')"><a href="{{ route('cashs') }}" ><i class="icon-briefcase"></i><span class="menu-title">Cash Management</span></a>

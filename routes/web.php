@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth']], function () {
 	// Booking Via (Master Data) Page
 	Route::get('/booking_vias', function () { return view('contents.booking_via.index'); })->name('booking_vias');	
 
+
 	// Apartment (Master Data) Page
 	Route::get('/apartments', function () { return view('contents.apartment.index'); })->name('apartments');
 
@@ -43,8 +44,10 @@ Route::group(['middleware' => ['auth']], function () {
 		return view('contents.unit.calendar', compact('id')); 
 	})->name('unit.calendar');
 
+
 	// Cash Page
 	Route::get('/cashs', function(){ return view('contents.cash.index'); })->name('cashs');
+
 
 	// Create Expenditure Page
 	Route::get('/expenditure/create', function(){ return view('contents.expenditure.create'); })->name('expenditure.create');
@@ -52,6 +55,7 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/expenditure', function(){ return view('contents.expenditure.index'); })->name('expenditure');
 	// Approval Expenditure List
 	Route::get('/expenditure/approval', function(){ return view('contents.expenditure.approval'); })->name('expenditure.approval');
+
 
 	// Booking List Page
 	Route::get('/booking', function(){ return view('contents.booking.index'); })->name('booking');
@@ -65,4 +69,8 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/reservation/canceled', function(){
 		return view('contents.reservation.canceled');
 	})->name('reservation.canceled');	
+
+
+	// Owner Payment Index
+	Route::get('/payment', function(){ return view('contents.payment.index'); })->name('payment');
 });
