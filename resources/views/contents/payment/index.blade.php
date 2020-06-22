@@ -99,7 +99,7 @@
 									<hr>
 									<label id="selected-rec-caption"></label>
 									<div class="pull-right">
-										<button id="propose-payment" class="btn-lg dropdown-item btn btn-info text-white" disabled>
+										<button id="propose-payment" class="btn-lg dropdown-item btn btn-info text-white" disabled onclick="window.propose()">
 											<i class="fa fa-file-text-o mr-1"></i>Propose Payment
 										</button>
 									</div>
@@ -115,7 +115,9 @@
 
 <div class="rm" style="display: none;">
 	<p id="api-index">{{ route('api.payment') }}</p>
+	<p id="api-destroy">{{ route('api.payment.destroy') }}</p>
 	<p id="api-owners">{{ route('api.owners.index') }}</p>
+	<p id="url-invoice">{{ route('payment.invoice', 0) }}</p>
 </div>
 
 @endsection
@@ -143,6 +145,7 @@
 <script src="{{ URL::asset('app-assets/vendors/js/forms/icheck/icheck.min.js') }}" type="text/javascript"></script>
 
 <script src="{{URL::asset('js/lib/checkboxTable.js?'.uniqid())}}" type="text/javascript"></script> 
+<script src="{{URL::asset('js/lib/SimpleEnc.js?'.uniqid())}}" type="text/javascript"></script> 
 
 <link rel="stylesheet" type="text/css" href="{{URL::asset('assets/datatables/datatables.min.css')}}"/>
 <script type="text/javascript" src="{{URL::asset('assets/datatables/datatables.min.js')}}"></script>

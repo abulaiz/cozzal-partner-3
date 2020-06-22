@@ -22,6 +22,7 @@ class CreateExpenditureTables extends Migration
             $table->string('description',100)->nullable();
             $table->boolean('is_billing');
             $table->boolean('is_paid');
+            $table->boolean('has_paid')->default(false);
             $table->boolean('is_approved');
             $table->dateTime('due_at')->nullable();
             $table->timestamps();

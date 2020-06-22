@@ -33,7 +33,7 @@ class UnitUtility
     }
 
     public function is_booked($ci, $co, $unit_id){
-        $x = Reservation::where([ ['unit_id',$unit_id],['deleted_at',null] ])
+        return Reservation::where([ ['unit_id',$unit_id],['deleted_at',null] ])
                             ->where(function($q) use ($ci, $co){
                                 $q->where([['check_in','<=',$ci],['check_out','>=',$co]])
                                 ->orWhere([['check_in','>=',$ci],['check_in','<',$co]])

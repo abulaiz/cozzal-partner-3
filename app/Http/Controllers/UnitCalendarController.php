@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Validator;
 use App\Models\CalendarEvent;
 use App\Models\ModPrice;
+use App\Models\Reservation;
 use Auth;
 use App\User;
 use App\Libs\UnitUtility;
@@ -38,6 +39,7 @@ class UnitCalendarController extends Controller
 	public function index($id){
 		$ce = CalendarEvent::where('unit_id', $id)->get();
 		$mp = ModPrice::where('unit_id', $id)->get();
+        $rs = Reservation::where('deleted_at', null)->where('unit_id', $id)->get();
 
 		// Types : Maintenance, Blocked By Admin, Blocked by Owner, Reservation, Mod Price
 		$res = [];
@@ -52,7 +54,8 @@ class UnitCalendarController extends Controller
 			$res[  $item->type == '1' ? 'mn' : ($item->type == '2' ? 'bba' : 'bbo') ][] = [
 				'title' => $title_types[ (int)$item->type - 1 ],
 				'description' => $item->note,
-				'start' => $item->started_at, 'end' => $item->ended_at,
+				'start' => $item->started_at, 
+                'end' => $item->ended_at,
 				'id' => $item->id, 'type' => $item->type,
 				'editable' => $this->isCalendarEditable($item->user_id)
 			];
@@ -67,6 +70,15 @@ class UnitCalendarController extends Controller
                 'id' => $item->id, 'type' => '5',
                 'editable' => $this->isCalendarEditable($item->user_id)             
             ];            
+        }
+
+        foreach ($rs as $item) {
+            $res['resv'][] = [
+                'title' => $item->is_confirmed ? "Reservation" : "Booked",
+                'description' => $item->tenant->name,
+                'start' => $item->check_in, 'end' => $item->check_out,
+                'type' => '4', 'editable' => false             
+            ]; 
         }
 
 		return response()->json($res);

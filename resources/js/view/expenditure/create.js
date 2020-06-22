@@ -87,10 +87,10 @@ function submit(){
             for(let i in res.errors){
                 _leftAlert('Warning !', res.errors[i], 'warning', false);
             }
+            form_onsubmit(false);
         }
     })
     .catch(function(){ form_onsubmit(false); _leftAlert('Error', 'Something wrong, try again', 'error'); })  
-    .then(function(){ form_onsubmit(false); })
 }
 
 $(".number-tab-steps").steps({

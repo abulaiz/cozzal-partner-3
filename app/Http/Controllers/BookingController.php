@@ -73,8 +73,8 @@ class BookingController extends Controller
             "tenant_id" => $request->tenant_id, 
             "unit_id" => $request->unit_id,
             "booking_via_id" => $request->booking_via_id,
-            "check_in" => $request->check_in." ".$this->default_check_in,
-            "check_out" => $request->check_out." ".$this->default_check_out,
+            "check_in" => $request->check_in,
+            "check_out" => $request->check_out,
             "guest" => $request->guest, 
             "notes" => $request->note,
             "owner_rent_prices" => json_encode([
@@ -94,8 +94,7 @@ class BookingController extends Controller
             "charge" => $request->charge, 
             "discount" => $discount, 
             "amount_bill" => $amount_bill,
-            "is_confirmed" => false, 
-            "is_paid" => false
+            "is_confirmed" => false
         ]);
 
         if($request->dp > 0) {

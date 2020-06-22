@@ -119,8 +119,23 @@ Route::post('reservation/destroy', 'ReservationController@destroy')->name('api.r
 
 /*
 |--------------------------------------------------------------------------
-| Payment Routes
+| Owner Payment Routes
 |--------------------------------------------------------------------------
 */
 
+// List history, paid, and unpaid owner payment
 Route::get('payment', 'PaymentController@index')->name('api.payment');
+// API Detail Data on Invoice Page
+Route::get('payment/invoice/{id}', 'PaymentController@invoice')->name('api.payment.invoice');
+// API Send Owner Payment
+Route::post('payment/send', 'PaymentController@send')->name('api.payment.send');
+// API Pay Owne Payment
+Route::post('payment/pay', 'PaymentController@pay')->name('api.payment.pay');
+// API Confirm Payment by Owner
+Route::post('payment/confirm', 'PaymentController@confirm')->name('api.payment.confirm');
+// API Refuce / Reject Payment by Owner
+Route::post('payment/reject', 'PaymentController@reject')->name('api.payment.reject');
+// API Cancel / Delete
+Route::post('payment/destroy', 'PaymentController@destroy')->name('api.payment.destroy');
+// Payment Report For Owner
+Route::get('payment/report', 'PaymentController@report')->name('api.payment.report');

@@ -297,9 +297,15 @@ function loadCalendar(){
                textColor: 'white'
             },
             {
+               // Reservation
+               events: response.data.resv,
+               color: '#e1415f',    
+               textColor: 'white'
+            },            
+            {
                // Mod Price
                events: response.data.mp,
-               color: '#e1415f',    
+               color: '#d041e1',    
                textColor: 'white'
             },                                    
          ],

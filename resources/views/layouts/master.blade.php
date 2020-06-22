@@ -7,7 +7,14 @@
 data-open="click" data-menu="vertical-menu" data-col="2-columns">
 
   @include('layouts.navbar')
-  @include('layouts.sidebar.general')
+
+  @if(Auth::user()->hasRole('owner'))
+    @include('layouts.sidebar.owner')
+  @else
+    @include('layouts.sidebar.general')
+  @endif
+  
+
   <div class="app-content content">
     <div class="content-wrapper">
       <div class="content-header row">

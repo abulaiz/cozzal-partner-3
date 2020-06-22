@@ -28,7 +28,7 @@ class CreateReservationTables extends Migration
             $table->unsignedInteger('discount');
             $table->unsignedInteger('amount_bill');
             $table->boolean('is_confirmed');
-            $table->boolean('is_paid');
+            $table->boolean('has_paid')->default(false);
             $table->timestamps();
             $table->softDeletes();
 

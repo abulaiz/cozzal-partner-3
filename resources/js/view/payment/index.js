@@ -7,7 +7,9 @@ Vue.component('dynamic-select', DynamicSelect);
 
 var _URL = {};
 _URL['index'] = $("#api-index").text();
+_URL['destroy'] = $("#api-destroy").text();
 _URL['owners'] = $("#api-owners").text();
+_URL['invoice'] = $("#url-invoice").text();
 
 $(".rm").remove();
 
@@ -130,4 +132,19 @@ var nav = new Vue({
 	}
 })
 
+window.propose = function(){
+	let x = SimpleEnc.encrypt(ck.value);
+	window.location = _URL.invoice.replace('/0', '/' + x)
+}
 
+window.invoice = function(e){
+	let data = Table1.row($(e).parents('tr')).data();
+	let x = SimpleEnc.encrypt(data.id);
+	window.location = _URL.invoice.replace('/0', '/' + x)
+}
+
+window.__remove = function(e){
+
+}
+
+window._checkMessage("message.payment.index");

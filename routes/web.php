@@ -73,4 +73,11 @@ Route::group(['middleware' => ['auth']], function () {
 
 	// Owner Payment Index
 	Route::get('/payment', function(){ return view('contents.payment.index'); })->name('payment');
+	// Payment Invoice
+	Route::get('/payment/invoice/{id}', function($id){ 
+		return view('contents.payment.invoice', compact('id')); 
+	})->name('payment.invoice');
+	// Owner Payment Report
+	Route::get('/payment_report', function(){ return view('contents.payment.report'); })->name('payment_report');
+
 });
