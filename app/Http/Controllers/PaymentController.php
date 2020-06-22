@@ -74,10 +74,11 @@ class PaymentController extends Controller
     			return View('contents.payment.index_table_action', compact('item'))->render();
     		});
     		$table->addColumn('status', function($item){
-    			$status = ($item->is_accepted*2) + ($item->is_paid*1);
+    			$status = ($item->is_rejected*4) + ($item->is_accepted*2) + ($item->is_paid*1);
     			if($status == 0) return "Waiting - Unpaid";
     			if($status == 2) return "Accepted - Unpaid";
-    			if($status == 3) return "Accepted - Paid";
+                if($status == 3) return "Accepted - Paid";
+    			if($status == 4) return "Rejected";
     		});
     		$table->rawColumns(['_action']);
     	} else {
@@ -152,6 +153,11 @@ class PaymentController extends Controller
                 else $expenditures[] = $data;
             }
         } else {
+            // Security Purpose           
+            if(Auth::user()->hasRole('owner')){
+                $status = ($data->is_rejected*4) + ($data->is_accepted*2) + ($data->is_paid*1);
+                if($status > 0 || $data->owner_id != Auth::user()->id) return;
+            }
             $resv = json_decode($data->reservations);
             foreach ($resv as $item) {
                 $d = Reservation::find($item);
@@ -202,7 +208,7 @@ class PaymentController extends Controller
     public function pay(Request $request){
         $cash = Cash::find($request->cash_id);
         $initial_balance = $cash->balance;
-        $cash->balance -= (int)$request->$paid_earning;
+        $cash->balance -= (int)$request->paid_earning;
         if($cash->balance < 0)
             return response()->json(['success' => false]);
         $cash->save();
@@ -212,6 +218,8 @@ class PaymentController extends Controller
     }
 
     public function accept(Request $request){
+        $enc = new SimpleEnc();
+        $id = $enc->decrypt($request->id);
         $data = Payment::find($request->id);
         $data->is_accepted = true;
         $data->save();
@@ -219,16 +227,12 @@ class PaymentController extends Controller
     }
 
     public function reject(Request $request){
-        $data = Payment::find($request->id);
-        $res = json_decode($data->reservations);
-        $exp = json_decode($data->expenditures);
-        foreach ($exp as $item) 
-            Expenditure::where('id', $item)->update(['has_paid' => false]); 
-        foreach ($res as $item) 
-            Reservation::where('id', $item)->update(['has_paid' => false]); 
+        $enc = new SimpleEnc();
+        $id = $enc->decrypt($request->id);
+        $data = Payment::find($id);
         $data->is_rejected = true;
         $data->save();
-        return response()->json(['success' => false]);
+        return response()->json(['success' => true]);
     }
 
     public function destroy(Request $request){
@@ -240,6 +244,6 @@ class PaymentController extends Controller
         foreach ($res as $item) 
             Reservation::where('id', $item)->update(['has_paid' => false]); 
         $data->delete();
-        return response()->json(['success' => false]);        
+        return response()->json(['success' => true]);        
     }
 }

@@ -24,8 +24,6 @@
 @section('content')
 
 <div class="row op-0" id="content">
-	<transition name="fade">
-	<template>
 	<div class="col-md-12" v-for="(item, i) in payments">
 		<transition name="fade">
 	        <div class="card" v-if="!item.onsubmit">          
@@ -203,11 +201,32 @@
 		                  
 		                  <button type="button" class="pull-right btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="icon-target mr-1"></i>Action</button>
 		                  <div class="dropdown-menu" x-placement="bottom-start">
-		                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" class="dropdown-item" href="javascript:void(0)"><i class="fa fa-times mr-1"></i>Reject</a>
-		                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" class="dropdown-item" href="javascript:void(0)"><i class="fa fa-check mr-1"></i>Confim</a>
-		                    <a v-if="!item.is_paid && item.is_accepted" class="dropdown-item"><i class="fa fa-money mr-1"></i> Pay</a>
-		                    <a v-if="!item.has_arranged" @click="send(i)" class="dropdown-item"><i class="fa fa-paper-plane mr-1"></i> Send Invoice</a>     
-		                    <a v-if="item.has_arranged && item.role != 'owner'" class="dropdown-item"><i class="fa fa-print mr-1"></i> Download/Print Invoice</a>
+		                    
+		                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
+		                    @click="reject(i)"
+		                    class="dropdown-item" 
+		                    href="javascript:void(0)">
+		                    <i class="fa fa-times mr-1">
+		                    </i>Reject</a>
+
+		                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
+		                    @click="confirm(i)"
+		                    class="dropdown-item" 
+		                    href="javascript:void(0)">
+		                    <i class="fa fa-check mr-1"></i>Confim</a>
+
+		                    <a v-if="!item.is_paid && item.is_accepted" 
+		                    @click="pay(i)"
+		                    class="dropdown-item">
+		                    <i class="fa fa-money mr-1"></i> Pay Payment</a>
+
+		                    <a v-if="!item.has_arranged" 
+		                    @click="send(i)" 
+		                    class="dropdown-item">
+		                    <i class="fa fa-paper-plane mr-1"></i> Send Invoice</a>     
+
+		                    <a v-if="item.has_arranged && item.role != 'owner'" href="{{ route('payment.invoice.download', $id) }}" target="blank" class="dropdown-item"><i class="fa fa-print mr-1"></i> Download/Print Invoice</a>
+
 		                  </div>
 		                </div>
 		              </div>
@@ -216,13 +235,12 @@
 	        </div>			
 		</transition>
 	</div>
-	</template>
-	</transition>
 </div>
 
 
 <div class="rm" style="display: none;">
 	<p id="url-index">{{ route('payment') }}</p>
+	<p id="url-report">{{ route('payment_report') }}</p>
 	<p id="api-invoice">{{ route('api.payment.invoice', $id) }}</p>
 	<p id="api-cashes">{{ route('api.cashes.index') }}</p>
 	<p id="api-send">{{ route('api.payment.send') }}</p>

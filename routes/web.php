@@ -79,5 +79,7 @@ Route::group(['middleware' => ['auth']], function () {
 	})->name('payment.invoice');
 	// Owner Payment Report
 	Route::get('/payment_report', function(){ return view('contents.payment.report'); })->name('payment_report');
+	// Invoice PDF
+	Route::get('/payment/invoice/download/{id}', 'PdfController@payment_invoice')->name('payment.invoice.download');
 
 });

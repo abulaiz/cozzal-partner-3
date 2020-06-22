@@ -144,7 +144,20 @@ window.invoice = function(e){
 }
 
 window.__remove = function(e){
-
+	let data = Table1.row($(e).parents('tr')).data();
+	_confirm("Are you sure ?", "Data will be deleted parmanently", function(){
+		axios.post(_URL.destroy , {
+			id : data.id
+		}).then(function (response) {
+			if(response.data.success){
+				_leftAlert('Success', 'Data successfuly deleted !', 'success');
+				nav.update();	
+			} else {
+				_leftAlert('Error', 'Something wrong, try again', 'error');
+			}
+		})
+		.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
+	});	
 }
 
 window._checkMessage("message.payment.index");

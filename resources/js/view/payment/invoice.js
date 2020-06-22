@@ -16,6 +16,7 @@ Vue.component('cleave', Cleave);
 
 var _URL = {};
 _URL['index'] = $("#url-index").text();
+_URL['report'] = $("#url-report").text();
 _URL['invoice'] = $("#api-invoice").text();
 _URL['cash'] = $("#api-cashes").text();
 _URL['send'] = $("#api-send").text();
@@ -97,36 +98,13 @@ var content = new Vue({
 			}	
 			return res;
 		},		
-		pay(index){
-			if(this.payments[index].cash == null)
-				_catch_with_toastr("Cash required");
-			if(this.payments[index].paid_earning != null && _str_empty(this.payments[index].input_description))
-				_catch_with_toastr("Description required");
-
-		    axios.post(_URL.pay , {
-		    	reservations : this.getReservations(index),
-		    	expenditures : this.getExpenditures(index),
-		    	total_earning : this.payments[index].earning,
-		    	paid_earning : this.payments[index].input_earning,
-		    	description : this.payments[index].input_description,
-		    	owner_id : this.payments[index].owner.id,
-		    	cash_id : this.payments[index].cash.id
-		    }).then(function (response) {
-		        let res = response.data;
-		        if(res.success){
-
-		        } else {
-
-		        }
-		    })
-		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-		},
 		send(index){
 			let e = this;
-			_leftAlert('Info', 'Processing ...', 'info');
-			this.payments[index].onsubmit = true;
 			if(this.payments[index].paid_earning != null && _str_empty(this.payments[index].input_description))
-				_catch_with_toastr("Description required");
+				return _catch_with_toastr("Description required");
+
+			_leftAlert('Info', 'Processing ...', 'info');
+			this.payments[index].onsubmit = true;			
 		    axios.post(_URL.send , {
 		    	reservations : JSON.stringify(this.getReservations(index)),
 		    	expenditures : JSON.stringify(this.getExpenditures(index)),
@@ -150,14 +128,93 @@ var content = new Vue({
 		    })
 		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
 		},
+		pay(index){			
+			if(this.payments[index].cash == null)
+				return _catch_with_toastr("Cash required");
+			if(this.payments[index].paid_earning != null && _str_empty(this.payments[index].input_description))
+				return _catch_with_toastr("Description required");
+
+			let e = this;
+			_leftAlert('Info', 'Processing ...', 'info');
+			this.payments[index].onsubmit = true;
+		    axios.post(_URL.pay , {
+		    	reservations : JSON.stringify(this.getReservations(index)),
+		    	expenditures : JSON.stringify(this.getExpenditures(index)),
+		    	total_earning : this.payments[index].earning,
+		    	paid_earning : this.payments[index].input_earning,
+		    	description : _str_empty(this.payments[index].input_description) ? '-' : this.payments[index].input_description,
+		    	owner_id : this.payments[index].owner.id,
+		    	cash_id : this.payments[index].cash.id
+		    }).then(function (response) {
+		        let res = response.data;
+		        if(res.success){
+		        	has_submited++;
+		        	if(has_submited == e.payments.length){
+			            window._setMessage('message.payment.index', 'Payment successfuly done', 'success');
+			            window.location = _URL.index; 
+		        	} else {
+		        		_leftAlert('Success !', 'Payment successfuly done', 'success');
+		        	}
+		        } else {
+		      		_leftAlert('Error', 'Source Fund not have enought balance', 'warning');
+		      		e.payments[index].onsubmit = false;	  	
+		        }
+		    })
+		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); e.payments[index].onsubmit = false;})
+		},		
 		toIDR(number){
 			return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		},
 		confirm(index){
+			let invoice_api_paths = _URL.invoice.split('/');
+			let e = this;
+			_leftAlert('Info', 'Processing ...', 'info');
+			this.payments[index].onsubmit = true;			
 
+		    axios.post(_URL.confirm , {
+		    	id : invoice_api_paths[ invoice_api_paths.length-1 ]
+		    }).then(function (response) {
+		        let res = response.data;
+		        if(res.success){
+		        	has_submited++;
+		        	if(has_submited == e.payments.length){
+			            window._setMessage('message.payment.report', 'You already confirm payment', 'success');
+			            window.location = _URL.report; 
+		        	} else {
+		        		_leftAlert('Success !', 'You already confirm payment', 'success');
+		        	}
+		        } else {
+		      		_leftAlert('Error', 'Something wrong, try again', 'error');
+		      		e.payments[index].onsubmit = false;	  	
+		        }
+		    })
+		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); e.payments[index].onsubmit = false;})
 		},
 		reject(index){
-
+			let e = this;
+			_confirm("Are you sure ?", "Data will be deleted parmanently", function(){
+				let invoice_api_paths = _URL.invoice.split('/');
+				_leftAlert('Info', 'Processing ...', 'info');
+				e.payments[index].onsubmit = true;			
+			    axios.post(_URL.reject , {
+			    	id : invoice_api_paths[ invoice_api_paths.length-1 ]
+			    }).then(function (response) {
+			        let res = response.data;
+			        if(res.success){
+			        	has_submited++;
+			        	if(has_submited == e.payments.length){
+				            window._setMessage('message.payment.report', 'You already reject payment', 'info');
+				            window.location = _URL.report; 
+			        	} else {
+			        		_leftAlert('Success !', 'You already reject payment', 'info');
+			        	}
+			        } else {
+			      		_leftAlert('Error', 'Something wrong, try again', 'error');
+			      		e.payments[index].onsubmit = false;	  	
+			        }
+			    })
+			    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); e.payments[index].onsubmit = false;})
+			});	
 		}
 	},
 	created : function(){

@@ -4,76 +4,29 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Libs\FpdfFormat;
+use App\Models\Payment;
+use App\User;
+use Auth;
 
 class PdfController extends Controller
 {
-    public function payment_invoice($code){
-        $plain = $this->enc->decrypt($code);
-        $param = explode('/', $plain);
-
-        $office_address = Setting::getParam('office_address');
-        $office_telephone = Setting::getParam('office_telephone');        
-        $reservations = [];
-        $expenditures = [];
-        $owner; 
-        $groupPayment = null;
-        $owner_id = null;
-        $id = $param[0];
-
-        if (count($param) == 1) {
-            $groupPayment = GroupPayment::find($id);
-            $owner = User::find($groupPayment->user_id);
-            if(Auth::user()->hasRole('Owner') && Auth::user()->id != $groupPayment->user_id)
-                return redirect()->back();
-
-            $list = PaymentO::where('group_payment_id', $groupPayment->id)->get();
-            foreach ($list as $items) {
-                $item = null;
-                if($items->reservation_id != null){
-                    $item = Reservation::find( $items->reservation_id );
-                    $reservations[] = $this->addReservation($item);
-                } elseif($items->expenditure_id != null) {
-                    $item = Expenditure::find( $items->expenditure_id );
-                    $expenditures[] = $this->addExpenditure($item);
-                } elseif ($items->broker_take_over_id != null) {
-                    $item = BrokerTakeOver::find( $items->broker_take_over_id );
-                    $reservations[] = $this->addBrokerTakeOver($item);
-                }
-            }
-        } elseif(count($param) == 2) {
-            $ids = explode(",", $id);
-            $owner = User::find($param[1]);
-            foreach ($ids as $data) {
-                $data_id = substr($data, 1);
-                $item = null;
-                if ($data[0] == 'r') {
-                    $item = Reservation::find( $data_id );
-                    $reservations[] = $this->addReservation($item);
-                } elseif ($data[0] == 'e') {
-                    $item = Expenditure::find( $data_id );
-                    $expenditures[] = $this->addExpenditure($item);
-                } elseif ($data[0] == 'b') {
-                    $item = BrokerTakeOver::find( $data_id );
-                    $reservations[] = $this->addBrokerTakeOver($item);
-                }
-            }                            
-        }
-        $invoice_number = ($groupPayment == null ? '' : 'Invoice Id : '.strtoupper('OPM-'.dechex($groupPayment->id)) );
-        $invoice_date = ($groupPayment == null ? date('Y-m-d') : substr($groupPayment->updated_at, 0, 10));
+    public function payment_invoice($id){
+        $data = app('App\Http\Controllers\PaymentController')->invoice($id)->getData();
+        foreach ($data->owners as $item) $owner = $item;
 
         $pdf = new FpdfFormat();
         $pdf->AddPage();
-
         $pdf->logo('../public/assets/images/logo2.png');
         $pdf->SetFont('Arial','',8);
-        $pdf->head($office_address, $office_telephone);
+        $pdf->head("Gateway Apartemen, Tower Shappire A - Lantai G - A 10, Jl. Jend. A. Yani no. 669, Bandung", "022-20546654 / 081809824448");
         $pdf->SetFont('Arial','B',10);
         $pdf->columnEmptyCenter($owner->name, 'INVOICE',' ', 'R');
         $pdf->Cell(189 ,1,'',0,1);       
 
         $pdf->SetFont('Arial','',10);
-        $pdf->columnEmptyCenter($owner->profile('address'), $invoice_number,' ', 'R');
-        $pdf->columnEmptyCenter('Mobile Phone : '.$owner->profile('phone'), 'Invoice Date : '. $invoice_date ,' ', 'R');
+        // $pdf->columnEmptyCenter($owner->address, $invoice_number,' ', 'R');
+        $pdf->columnEmptyCenter("owner Address", $data->receipt_number,' ', 'R');
+        $pdf->columnEmptyCenter('Mobile Phone : '.$owner->phone, 'Invoice Date : '. $data->date ,' ', 'R');
         $pdf->columnEmptyCenter($owner->email, ' ',' ', 'R');
         $pdf->Cell(189 ,5,'',0,1);
 
@@ -85,32 +38,33 @@ class PdfController extends Controller
         
         $pdf->SetFont('Arial','',10);
         $i = 1; $exp_total = 0;
-        foreach ($expenditures as $item) {
+        foreach ($data->expenditures as $item) {
             $pdf->Row([
-                $i++, $item->date, $item->note,
+                $i++, substr($item->created_at, 0, 10), $item->description,
                 number_format($item->price)." IDR",
-                $item->qty, number_format($item->total)." IDR"
+                $item->qty, number_format($item->price * $item->qty)." IDR"
             ], $exp_col_width, ['C','C','L','C','C','R'], 5);
-            $exp_total += $item->total;
+            $exp_total += $item->price * $item->qty;
         }
         $pdf->SetFont('Arial','B',10);
         $pdf->Row(['Total Expenditures', number_format($exp_total).' IDR'], ['150', '40'], ['L', 'R'], 5);
         $pdf->Ln();
 
         // Reservation
-        $res_col_width = ['10','60','30','50','40'];
+        $res_col_width = ['10','60','80','40'];
         $pdf->Row(['Unit Revenue'], ['190'], ['C'], 6);
-        $pdf->Row(['#','Check In/Check Out','Unit','Apartement','Total Price'], $res_col_width, ['C'], 6);
+        $pdf->Row(['#','Check In/Check Out','Unit','Total Price'], $res_col_width, ['C'], 6);
         
         $pdf->SetFont('Arial','',10);
         $i = 1; $res_total = 0;
-        foreach ($reservations as $item) {
+        foreach ($data->reservations as $item) {
+            $total = (int)json_decode($item->owner_rent_prices)->TP;
             $pdf->Row([
-                $i++, $item->check_in."/".$item->check_out, 
-                $item->unit, $item->apartment,
-                number_format($item->price)." IDR",
+                $i++, substr($item->check_in, 0, 10)."/".substr($item->check_out, 0, 10), 
+                $item->unit->unit_number." - ".$item->unit->apartment->name,
+                number_format( $total )." IDR",
             ], $res_col_width, ['C','C','C','C','R'], 5);
-            $res_total += $item->price;
+            $res_total += $total;
         }
         $pdf->SetFont('Arial','B',10);
         $pdf->Row(['Total Revenue', number_format($res_total).' IDR'], ['150', '40'], ['L', 'R'], 5);   
@@ -123,18 +77,16 @@ class PdfController extends Controller
         $pdf->SetFont('Arial','',10);
         $pdf->columnTriplePullRight('', '     Total Revenue : ', '(+) '.number_format($res_total).' IDR', 'L', 'L', 'R');
         $pdf->columnTriplePullRight('', '     Total Expenditures : ', '(-) '.number_format($exp_total).' IDR', 'L', 'L', 'R');
+        if($data->paid_earning < $res_total - $exp_total){
+            $pdf->columnTriplePullRight('', '     '.$data->description.' : ', '(-) '.number_format( ($res_total-$exp_total) - $data->paid_earning ).' IDR', 'L', 'L', 'R');
+        } elseif($data->paid_earning > $res_total - $exp_total){
+            $pdf->columnTriplePullRight('', '     '.$data->description.' : ', '(+) '.number_format( $data->paid_earning - ($res_total-$exp_total) ).' IDR', 'L', 'L', 'R');
+        }
+
         $pdf->Ln(1);
         $pdf->Line(112, $pdf->GetY(), 200, $pdf->getY());
         $pdf->Ln(1);
-        $pdf->columnTriplePullRight('', '     Earnings : ', number_format($res_total - $exp_total).' IDR', 'L', 'L', 'R');
-        if($groupPayment!=null){
-            if($groupPayment->nominal_paid != $groupPayment->nominal){
-                $pdf->Ln();   
-                $pdf->columnTriplePullRight('', '     Earnings Paid : ', number_format($groupPayment->nominal_paid).' IDR', 'L', 'L', 'R');
-                $pdf->columnTriplePullRight('', '     Description : ', $groupPayment->description, 'L', 'L', 'R');
-            }
-        }
-
+        $pdf->columnTriplePullRight('', '     Earnings : ', number_format($data->paid_earning).' IDR', 'L', 'L', 'R');
         $pdf->Output();    
         exit;    
     }
