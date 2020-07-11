@@ -2,13 +2,13 @@
 aria-haspopup="true" aria-expanded="true">
   Action
 </button>
-<div class="dropdown-menu">
+<div class="dropdown-menu dropup">
   <div class="dropdown-submenu">
     <button class="dropdown-item" type="button">Detail</button>
     <div class="dropdown-menu open-left" role="menu">
-<!--       <a class="dropdown-item details" data-toggle="modal" data-target="#detail">
-        <i class="fa fa-book mr-1"></i>Detail
-      </a> -->
+      <a class="dropdown-item" target="blank" href="{{ route('booking.invoice', $row->id) }}">
+        <i class="fa fa-file-text-o mr-1"></i>Invoice
+      </a>
       <a class="dropdown-item payments" 
       onclick="window.payment(this)"
       data-toggle="modal" 
@@ -17,9 +17,6 @@ aria-haspopup="true" aria-expanded="true">
       data-target="#payment">
         <i class="fa fa-money mr-1"></i>Payment
       </a>      
-      <a class="dropdown-item" target="blank" href="/invoice/booking/{{$row->id}}/null">
-        <i class="fa fa-file-text-o mr-1"></i>Slip DP
-      </a>
     </div>
   </div>
   <div class="dropdown-submenu">

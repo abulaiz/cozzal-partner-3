@@ -18,12 +18,14 @@ class CreateReservationTables extends Migration
             $table->unsignedInteger('tenant_id');
             $table->unsignedInteger('unit_id');
             $table->unsignedInteger('booking_via_id');
-            $table->dateTime('check_in');
-            $table->dateTime('check_out');
+            $table->date('check_in');
+            $table->date('check_out');
             $table->unsignedInteger('guest');
             $table->string('notes', 200)->nullable();
             $table->string('rent_prices')->nullable();
             $table->string('owner_rent_prices');
+            $table->string('mod_prices');
+            $table->string('days');
             $table->unsignedInteger('charge');
             $table->unsignedInteger('discount');
             $table->unsignedInteger('amount_bill');

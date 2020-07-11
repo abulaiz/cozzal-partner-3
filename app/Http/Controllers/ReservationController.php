@@ -7,6 +7,8 @@ use Datatables;
 use App\Models\Reservation;
 use App\Models\ReservationPayment;
 use App\Models\Cash;
+use App\Models\Payment;
+use Auth;
 
 class ReservationController extends Controller
 {
@@ -26,7 +28,7 @@ class ReservationController extends Controller
                             return "COZ-".strtoupper(dechex($row->id));
                         })
                         ->addColumn('_action', function($row){
-                            return '<p class="text-primary">Belum Ada</p>';
+                            return view('contents.reservation.confirmed_table_action', compact('row'));
                         })
                         ->rawColumns(['_action'])
                         ->make(true);		
@@ -92,5 +94,53 @@ class ReservationController extends Controller
         $data->payment()->delete();
         $data->delete();
         return response()->json(['success' => true]);
-    }   
+    }  
+
+    public function report(Request $request){
+        $owner_id = Auth::user()->id;
+        $data = Reservation::where('deleted_at',null)
+                            ->where('is_confirmed', $request->type)
+                            ->whereHas('unit', function($query) use ($owner_id){
+                                $query->where('owner_id', $owner_id);
+                            })
+                            ->get();
+        $rawcolumns = ['owner_rent_prices'];
+        $table = Datatables::of($data);
+        $table->addColumn('unit', function($row){ 
+            return $row->unit->name;
+        });
+        $table->addColumn('tenant', function($row){ 
+            return $row->tenant->name; 
+        });    
+        if($request->type == '1'){
+            
+            $table->addColumn('status', function($row){
+                $paid = Payment::where(function($query) use ($row){
+                    $query->where('reservations', 'like', '%['.$row->id.'%')
+                    ->orWhere('reservations', 'like', '%,'.$row->id.'%')
+                    ->orWhere('reservations', 'like', '%'.$row->id.']%');
+                })->where('is_paid', true)->exists();
+
+                if($paid) return '<span class="text-success">PAID</span>';
+                else return '<span class="text-danger">UNPAID</span>';
+            });
+            $rawcolumns[] = "status";
+        }
+
+        $table->rawColumns($rawcolumns); 
+        return $table->make(true);               
+    } 
+
+    public function invoice($id){
+        $data = Reservation::find($id);
+        if($data == null)
+            return [];
+        // Load Reservation Payment, Tenant, Unit
+        $payment = $data->payment()->sum("nominal");
+        $new_data = collect(['paid' => $payment]);
+        $data->tenant;
+        $data->unit;
+        $new_data = $new_data->merge($data);
+        return $new_data;
+    }
 }

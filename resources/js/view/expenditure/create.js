@@ -82,6 +82,9 @@ function submit(){
         let res = response.data;
         if(res.success){
             window._setMessage(res.direct_path, res.message, 'success');
+            if(step2.$data.type.id != 1 ){
+                sessionStorage.setItem('approval_type', step2.$data.type.id);
+            }
             window.location = res.direct_route; 
         } else {
             for(let i in res.errors){
@@ -159,7 +162,7 @@ var step2 = new Vue({
     },
     methods : {
         notBeforeToday(date) {
-          return date < new Date();
+          return new Date();
         },
         setData(type, necessary){
             this.type = type;

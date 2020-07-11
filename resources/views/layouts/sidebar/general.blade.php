@@ -30,11 +30,13 @@
         </ul>
       </li>
 
+      @hasrole('manager')
       <li class=" nav-item @yield('payment')"><a href="{{ route('payment') }}" ><i class="icon-docs"></i><span class="menu-title">Owner Payment</span></a>
       </li>
 
       <li class=" nav-item @yield('cashes')"><a href="{{ route('cashs') }}" ><i class="icon-briefcase"></i><span class="menu-title">Cash Management</span></a>
       </li>
+      @endhasrole
 
       <li class=" nav-item @yield('units')"><a href="{{ route('units') }}" ><i class="icon-diamond"></i><span class="menu-title">Unit Data</span></a>
       </li>

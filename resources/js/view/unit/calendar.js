@@ -20,6 +20,10 @@ Vue.component('p-check', PrettyCheck);
 import Cleave from 'vue-cleave-component';
 Vue.component('cleave', Cleave);
 
+// Vue Select
+import DynamicSelect from 'vue-dynamic-select'
+Vue.component('dynamic-select', DynamicSelect);
+
 const unit_id = $("#parse-unit-id").text();
 
 var _URL = {};
@@ -33,6 +37,8 @@ _URL['update_pr'] = $("#url-api-price-update").text();
 _URL['delete_pr'] = $("#url-api-price-delete").text();
 
 _URL['calendar'] = $("#url-api-calendar").text();
+_URL['units'] = $("#api-units").text();
+_URL['site'] = $("#url-calendar").text();
 
 var cleaveOption = {
     numeral: true,
@@ -275,6 +281,7 @@ function loadCalendar(){
             center: 'title',
             right: 'month, agendaWeek, list'
          },
+         height: 600,
          editable: false,
          eventLimit: true,
          eventSources: [
@@ -353,5 +360,30 @@ function loadCalendar(){
    .catch(function (error) {
    });  
 }
+
+var app = new Vue({
+   el : "#app",
+   data : {
+      units : [],
+      unit : null
+   },
+   created : function(){
+      axios.get(_URL.units)
+      .then((response) => {
+         this.units = response.data.data;
+         for(let i in this.units){
+            if(this.units[i].id == unit_id){
+               this.unit = this.units[i];
+            }
+         }
+      })
+   },
+   watch : {
+      unit : function(newVal, oldVal){
+         if(oldVal == null || newVal == null) return ;
+         window.location = _URL.site.replace('/0', '/' + newVal.id)
+      }
+   }
+});
 
 loadCalendar();

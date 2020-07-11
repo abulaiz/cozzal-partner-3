@@ -52,8 +52,8 @@ class CreateUnitTables extends Migration
         Schema::create('mod_prices', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('unit_id');
-            $table->date('started_at');
-            $table->date('ended_at');
+            $table->dateTime('started_at');
+            $table->dateTime('ended_at');
             $table->string('price');
             $table->string('owner_price');
             $table->string('note',40)->nullable();

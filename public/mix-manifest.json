@@ -1,5 +1,4 @@
 {
-    "/js/view/payment/index.js": "/js/view/payment/index.js",
-    "/js/view/payment/invoice.js": "/js/view/payment/invoice.js",
-    "/js/view/payment/report.js": "/js/view/payment/report.js"
+    "/js/view/reservation/invoice.js": "/js/view/reservation/invoice.js",
+    "/js/view/reservation/invoice.js.map": "/js/view/reservation/invoice.js.map"
 }

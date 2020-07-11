@@ -57,3 +57,7 @@ window._checkMessage = function(path){
 window._setMessage = function(path, message, type){
 	sessionStorage.setItem(path, JSON.stringify({message : message, type : type}));
 }
+
+window._currencyFormat = function(number){
+	return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}

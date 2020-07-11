@@ -5,19 +5,9 @@
 
 
 
-@section('button_header')
-
-<button class="btn btn-info" type="button" data-toggle="modal" data-target="#modal1">
-	<i class="fa fa-plus mr-1"></i>Add Unit
-</button>
-
-@endsection
-
-
-
 @section('content')
 
-<div class="row">
+<div class="row" id="content">
 	<div class="col-12">
 		<div class="card">
 			<div class="card-header">
@@ -48,15 +38,8 @@
 	</div>
 </div>
 
-<div class="modal fade text-left" id="modal1" tabindex="-1" role="dialog"  aria-hidden="true">
-  @include('contents.unit.index_add_modals')
-</div>
-
-
 <div class="rm" style="display: none;">
 	<p id="url-api-units">{{ route('api.units.index') }}</p>
-	<p id="url-api-units-store">{{ route('api.units.store') }}</p>
-	<p id="url-api-units-update">{{ route('api.units.update', '0') }}</p>
 	<p id="url-api-units-destroy">{{ route('api.units.destroy', '0') }}</p>
 </div>
 

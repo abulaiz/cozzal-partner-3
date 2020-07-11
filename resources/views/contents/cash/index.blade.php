@@ -25,7 +25,7 @@
 
 @section('content')
 
-<div class="row">
+<div class="row op-0 animated">
 	<div class="col-md-8">
 		<div class="card text-white bg-success">
 			<div class="card-header">

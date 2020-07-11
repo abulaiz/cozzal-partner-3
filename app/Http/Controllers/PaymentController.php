@@ -113,7 +113,9 @@ class PaymentController extends Controller
 
     public function report(){
         $owner_id = Auth::user()->id;
-        $data = Payment::where('owner_id', $owner_id)->where('is_rejected',false)->get();
+        $data = Payment::where('owner_id', $owner_id)->where('is_rejected',false)
+                                                     ->where('is_paid', false)
+                                                     ->get();
         $table = Datatables::of($data);
         $table->addColumn('_action', function($item){
             return View('contents.payment.report_table_action', compact('item'))->render();
@@ -156,7 +158,11 @@ class PaymentController extends Controller
             // Security Purpose           
             if(Auth::user()->hasRole('owner')){
                 $status = ($data->is_rejected*4) + ($data->is_accepted*2) + ($data->is_paid*1);
-                if($status > 0 || $data->owner_id != Auth::user()->id) return;
+                // if accessed by another owner
+                if(Auth::user()->hasRole('owner') && $data->owner_id != Auth::user()->id)
+                    return;
+                
+                // if( ($status > 0 && $status != 2) || $data->owner_id != Auth::user()->id) return;
             }
             $resv = json_decode($data->reservations);
             foreach ($resv as $item) {
@@ -176,6 +182,7 @@ class PaymentController extends Controller
         }   
 
         return response()->json([
+            'id' => $data == null ? null : $data->id,
             'role' => Auth::user()->getRoleNames()[0],
             'owners' => $owners,
             'reservations' => $reservations,
@@ -213,14 +220,23 @@ class PaymentController extends Controller
             return response()->json(['success' => false]);
         $cash->save();
         $cash_mutation_id = $cash->saveMutation($initial_balance, "4");
-        $this->make_payment($request, true, $cash_mutation_id);       
+        if($request->id == null){
+            $this->make_payment($request, true, $cash_mutation_id);
+        } else {
+            Payment::find($request->id)->update([
+                "cash_mutation_id" => $cash_mutation_id,
+                "is_accepted" => true, // if con action pay, its automaticly accepted
+                "is_paid" => true
+            ]);
+        }
+               
         return response()->json(['success' => true]);
     }
 
-    public function accept(Request $request){
+    public function confirm(Request $request){
         $enc = new SimpleEnc();
         $id = $enc->decrypt($request->id);
-        $data = Payment::find($request->id);
+        $data = Payment::find($id);
         $data->is_accepted = true;
         $data->save();
         return response()->json(['success' => true]);
@@ -245,5 +261,22 @@ class PaymentController extends Controller
             Reservation::where('id', $item)->update(['has_paid' => false]); 
         $data->delete();
         return response()->json(['success' => true]);        
+    }
+
+    public function owner_paid(){
+        $owner_id = Auth::user()->id;
+        $data = Payment::where('owner_id', $owner_id)->where('is_paid',true)
+                                                     ->get();
+        $table = Datatables::of($data);
+        $table->addColumn('_action', function($item){
+            return View('contents.payment.report_table_action', compact('item'))->render();
+        });
+        $table->addColumn('transaction_count', function($item){
+            $res_count = count( json_decode($item->reservations) );
+            $exp_count = count( json_decode($item->expenditures) );
+            return $res_count+$exp_count." Transaction";
+        });
+        $table->rawColumns(['_action']);   
+        return $table->make(true);          
     }
 }

@@ -51,7 +51,7 @@
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>Days </label>
-                    <input type="number" min="1" class="form-control" v-model="days">
+                    <input type="number" min="1" class="form-control" v-model="count_day">
                   </div>
                 </div>                                                        
               </div>
@@ -103,6 +103,35 @@
             <h6><i class="step-icon fa fa-money"></i>Step 4</h6>
             <fieldset>
             <div class="row" id="_step4">
+
+              <!-- Message if has mod price -->
+              <div class="col-md-12" v-if="price.mod_prices.length > 0">
+                <div class="alert bg-info alert-icon-left" role="alert">
+                  <span class="alert-icon"><i class="fa fa-info-circle"></i></span><strong>Info. </strong>Prices on several dates have changed</div>                
+              </div>
+              <!-- Mode Prices Field -->
+              <div class="col-md-12" v-if="price.mod_prices.length > 0">
+                <div class="col-md-12 pb-2 mb-1 border-bottom-blue-grey border-bottom-lighten-2">
+                  <div class="row mt-1" v-for="(item, i) in price.mod_prices">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <p class="font-weight-bold">From @{{ mod_prices[i].start }} to @{{ mod_prices[i].end }}</p>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Owner Price :</label>
+                        <cleave class="form-control" v-model="price.mod_prices[i].owner_price" @keyup.native="modPriceKeyUp" :options="cleave"></cleave>
+                      </div>
+                      <div class="col-md-6">
+                        <label>Rent Price :</label>
+                        <cleave class="form-control" v-model="price.mod_prices[i].rent_price" @keyup.native="modPriceKeyUp" :options="cleave"></cleave>
+                      </div>                       
+                    </div>                   
+                  </div>
+                </div>                
+              </div>
+
+
+              <!-- Normal Price -->
               <div class="col-md-6">
                 <div v-show="show.owner_weekday_price" class="form-group">
                   <label>Owner Weekday :</label>
@@ -126,7 +155,7 @@
                 </div>  
                 <div class="form-group">
                   <label>Owner Total :</label>
-                  <cleave class="form-control" v-model="price.owner_price_total" :options="cleave"></cleave>
+                  <cleave :readonly="true" class="form-control" v-model="price.owner_price_total" :options="cleave"></cleave>
                 </div>                   
               </div> 
               <div class="col-md-6">
@@ -152,7 +181,7 @@
                 </div>  
                 <div class="form-group">
                   <label>Rent Total :</label>
-                  <cleave class="form-control" v-model="price.rent_price_total" 
+                  <cleave :readonly="true" class="form-control" v-model="price.rent_price_total" 
                   :options="cleave"></cleave>
                 </div>                   
               </div>  

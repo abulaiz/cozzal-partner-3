@@ -1,3 +1,4 @@
+@if(Auth::user()->hasRole('manager'))
 <button class="btn btn-outline-info dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
 aria-haspopup="true" aria-expanded="false">Action</button>
 <div class="dropdown-menu arrow">
@@ -12,3 +13,6 @@ aria-haspopup="true" aria-expanded="false">Action</button>
 		<i class="fa fa-close mr-1"></i> Delete
 	</a>	
 </div> 
+@else
+-
+@endif

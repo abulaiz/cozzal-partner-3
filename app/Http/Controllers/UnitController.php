@@ -7,6 +7,7 @@ use App\Models\Unit;
 use Datatables;
 use Validator;
 use App\Libs\UnitUtility;
+use Auth;
 
 class UnitController extends Controller
 {
@@ -31,21 +32,40 @@ class UnitController extends Controller
             return response()->json($data);
         }
 
-        return Datatables::of(Unit::all())
-                            ->addColumn('_action', function($row){
-                                return View('contents.unit.index_table_action', compact('row'))->render();
-                            })
-                            ->addColumn('_apartment', function($row){
-                                return $row->apartment->name;
-                            })
-                            ->addColumn('_owner', function($row){
-                                return $row->owner->name;
-                            }) 
-                            ->addColumn('see_more', function($row){
-                                return '<a href="javascript:void(0);">See more</a>';
-                            })                                                        
-                            ->rawColumns(['_action', 'rent_price', 'owner_rent_price', 'see_more'])        
-                            ->make(true);        
+        if(Auth::user()->hasRole('owner')){
+            $now = date("Y-m-d");
+            return Datatables::of(Unit::where('owner_id', Auth::user()->id)->get())
+                    ->addColumn('_action', function($row){
+                        return View('contents.unit.owner_table_action', compact('row'))->render();
+                    })
+                    ->addColumn('_apartment', function($row){
+                        return $row->apartment->name;
+                    })   
+                    ->addColumn('_address', function($row){
+                        return $row->apartment->address;
+                    })     
+                    ->addColumn('_status', function($row) use ($now){
+                        return $this->unit_utility->is_booked($now, $now, $row->id) ? "Booked" : "Available";
+                    })  
+                    ->rawColumns(['_action'])           
+                    ->make(true);  
+        } else {
+            return Datatables::of(Unit::all())
+                    ->addColumn('_action', function($row){
+                        return View('contents.unit.index_table_action', compact('row'))->render();
+                    })
+                    ->addColumn('_apartment', function($row){
+                        return $row->apartment->name;
+                    })
+                    ->addColumn('_owner', function($row){
+                        return $row->owner->name;
+                    }) 
+                    ->addColumn('see_more', function($row){
+                        return '<a href="javascript:void(0);">See more</a>';
+                    }) 
+                    ->rawColumns(['_action', 'see_more', 'owner_rent_price', 'rent_price'])                                                       
+                    ->make(true);        
+        }
     }
 
     public function available_unit(Request $request){

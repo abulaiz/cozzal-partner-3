@@ -72,8 +72,10 @@ function step5_validation(data = step5.$data){
         return _catch_with_toastr("Booking Via required");
     if(data.cash == null || data.cash == {})
         return _catch_with_toastr("DP Via required");
-    if(step4.$data.price.deposite > 0 && data.dp < step4.$data.price.deposite)
-        return _catch_with_toastr("DP can'nt least from deposite");    
+    if(Number(step4.$data.price.deposite) > 0 && Number(data.dp) < Number(step4.$data.price.deposite))
+        return _catch_with_toastr("DP can'nt least from deposite");  
+    if(Number(data.dp) > Number(step4.$data.price.amount_bill))
+        return _catch_with_toastr("System doesn't have refund system"); 
     return true;
 }
 
@@ -121,6 +123,8 @@ function submit(){
         rent_weekly_price : step4.$data.price.rent_weekly_price,
         rent_monthly_price : step4.$data.price.rent_monthly_price,
         rent_price_total : step4.$data.price.rent_price_total,
+        mod_prices : step4.$data.mod_prices,
+        days : step2.$data.days,
         charge : step4.$data.price.charge,
         cash_id : step5.$data.cash.id
     }).then(function (response) {
@@ -194,9 +198,10 @@ var step2 = new Vue({
     data : {
         check_in : null,
         check_out : null,
-        skip_watch_days : false,
+        skip_watch_count_day : false,
         skip_watch_check_out : false,
-        days : null,
+        count_day : null,
+        days : {},
         lang : {
           formatLocale: {
             firstDayOfWeek: 1,
@@ -224,8 +229,8 @@ var step2 = new Vue({
     },
     watch : {
         check_in : function(val){
-            if(this.days == 1) {this.incrementCheckOut(1); reset();}
-            this.days = 1;
+            if(this.count_day == 1) {this.incrementCheckOut(1); reset();}
+            this.count_day = 1;
         },
         check_out : function(val){
             if(val == null) return;
@@ -237,25 +242,29 @@ var step2 = new Vue({
             if(this.check_in == null) { this.check_out = null; _leftAlert('Error !', 'Please set check in please', 'error', false);  return; }
             
             let e = this;
-            this.skip_watch_days = true;
-            this.days = Helper.diff_date(this.check_in, val)
+            this.skip_watch_count_day = true;
+            this.count_day = Helper.diff_date(this.check_in, val)
         },
-        days : function(val, oldVal){
+        count_day : function(val, oldVal){
             reset();
-            if(this.skip_watch_days){
-                this.skip_watch_days = false;
+            if(this.skip_watch_count_day){
+                this.skip_watch_count_day = false;
                 return;
             }
             if(val <= 0) {  
-                this.skip_watch_days = true; 
-                this.days = oldVal; 
+                this.skip_watch_count_day = true; 
+                this.count_day = oldVal; 
                 _leftAlert('Error !', 'Date not valid', 'error', false); 
             }
-            this.incrementCheckOut(this.days)
+            this.incrementCheckOut(this.count_day)
       }
     },
     created : function(){
-
+        Helper.addEventListener('updateDays', (params) => { 
+            this.days = params; 
+            console.log(this.days) 
+            step4.setModPrices(this.days.mod)
+        })
     }
 });
 
@@ -297,8 +306,6 @@ var step3 = new Vue({
             if(data != null)
                 Helper.setUnit(data, (count) => {
                     // if has mod prices
-                    if(count > 0)
-                        _leftAlert('Info', `System detected ${count} mod price`, 'info', true); 
                 })
         },
         guest_count : function(value){ Helper.setGuestCount(value) }
@@ -325,6 +332,7 @@ var step4 = new Vue({
             deposite : false
         }, 
         price : {
+            mod_prices : [],
             owner_weekday_price : 0,
             owner_weekend_price : 0,
             owner_weekly_price : 0,
@@ -340,6 +348,7 @@ var step4 = new Vue({
             amount_bill : 0,
             normal_amount_bill : 0  // legacy amount bill (not edited by user)     
         },
+        mod_prices : [],
         cleave : {
             numeral: true,
             numeralThousandsGroupStyle: 'thousand'       
@@ -352,7 +361,9 @@ var step4 = new Vue({
         },
         cleaveDebounce2 : function(){
             Helper.generatePrice(false, this.price)
-        },        
+        }, 
+        setModPrices : function(data){ this.mod_prices = data },
+        modPriceKeyUp : function(){ this.debounceCleave1() }      
     },
     created : function(){
         this.debounceCleave1 = _.debounce(this.cleaveDebounce1, 200)
@@ -361,11 +372,10 @@ var step4 = new Vue({
         Helper.addEventListener('updatePricingField', (params) => { 
             this.prevent_cleave_changed = true;
             this.price = params; 
+            console.log(this.price);
             setTimeout(() => {
                 this.prevent_cleave_changed = false;
             }, 100)
-
-            console.log(params) 
         })
 
         this.$watch(e => [

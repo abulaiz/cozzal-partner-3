@@ -7,6 +7,8 @@ use Validator;
 use Datatables;
 use App\Models\Expenditure;
 use App\Models\Cash;
+use App\Models\Payment;
+use Auth;
 
 class ExpenditureController extends Controller
 {
@@ -17,25 +19,53 @@ class ExpenditureController extends Controller
      */
     public function index($type)
     {
-        if($type == '1')
-            $data = Expenditure::where('is_billing', false)->get();
-        elseif($type == '2')
+        if($type == '1') {
+            $data = Expenditure::where('is_paid', true)->get();
+        } elseif($type == '2') {
             $data = Expenditure::where('is_billing', true)
                                 ->where('due_at', '!=', null)
                                 ->get();
-        elseif($type == '3')
+        } elseif($type == '3') {
             $data = Expenditure::where('is_billing', true)
                                 ->where('due_at', null)
                                 ->get();
-        return Datatables::of($data)
-                        ->addColumn('_cash', function($row){
-                            return $row->is_paid ? $row->cash->name : '';
-                        })
-                        ->addColumn('_necessary', function($row){
-                            return $row->unit_id == null ? "General" : $row->unit->unit_number." - ".$row->unit->apartment->name;
-                        })
-                        ->addColumn('_total', function($row){ return $row->qty*$row->price; })
-                        ->make(true);
+        }
+
+        $table = Datatables::of($data);
+        $table->addColumn('_total', function($row){ return $row->qty*$row->price; });
+        if(Auth::user()->hasRole('owner')){
+            
+            $table->addColumn('_status', function($row){
+                $paid = Payment::where(function($query) use ($row){
+                    $query->where('expenditures', 'like', '%['.$row->id.'%')
+                    ->orWhere('expenditures', 'like', '%,'.$row->id.'%')
+                    ->orWhere('expenditures', 'like', '%'.$row->id.']%');
+                })->where('is_paid', true)->exists();
+
+                if($paid) return '<span class="text-success">PAID</span>';
+                else return '<span class="text-danger">UNPAID</span>';
+            });
+
+            $table->addColumn('_unit', function($row){
+                return $row->unit->name;
+            }); 
+            $table->rawColumns(['_status']);            
+        } else {
+            $table->addColumn('_necessary', function($row){
+                return $row->unit_id == null ? "General" : $row->unit->unit_number." - ".$row->unit->apartment->name;
+            });          
+            $table->addColumn('_action', function() use ($type){
+                return View('contents.expenditure.table_action', compact('type'))->render();
+            });
+            if( $type == '1' ){
+                $table->addColumn('_cash', function($row){
+                    return $row->cash->name;
+                });               
+            }
+            $table->rawColumns(['_action']);
+        }
+
+        return $table->make(true);
     }
 
     /**
@@ -139,7 +169,47 @@ class ExpenditureController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // 
+    }
+
+    public function approve(Request $request){
+        $id = $request->id;
+        $data = Expenditure::find($id);
+        if($data == null) 
+            return response()->json(['success' => false, 'message' => 'Something wrong, please refresh page']);
+        // type of approval (1 : Direct approve, 2 : Billing Approve)
+        $type = $request->type;
+        if( $type == '1' ){
+            if($request->cash_id == null)
+                return response()->json(['success' => false, 'message' => 'Source fund required !']);
+            $cash = Cash::find($request->cash_id);
+            if($cash->balance < ($data->price * $data->qty))
+                return response()->json(['success' => false, 'message' => 'Balance of source fund is not enough']);    
+            $data->setType("1");
+            $data->setCash($request->cash_id);           
+        } elseif($type == '2'){
+            if($request->due_at == null)
+                return response()->json(['success' => false, 'message' => 'Due date is required !']);
+            $data->due_at = $request->due_at;            
+        }
+        $data->save();
+        return response()->json(['success' => true]);
+    }
+
+    public function pay(Request $request){
+        $id = $request->id;
+        $data = Expenditure::find($id);
+        if($data == null) 
+            return response()->json(['success' => false, 'message' => 'Something wrong, please refresh page']);
+        if($request->cash_id == null)
+            return response()->json(['success' => false, 'message' => 'Source fund required !']);
+        $cash = Cash::find($request->cash_id);
+        if($cash->balance < ($data->price * $data->qty))
+            return response()->json(['success' => false, 'message' => 'Balance of source fund is not enough']);    
+        $data->setType("1");
+        $data->setCash($request->cash_id);       
+        $data->save();
+        return response()->json(['success' => true]);                              
     }
 
     /**
@@ -150,6 +220,17 @@ class ExpenditureController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $data = Expenditure::find($id);
+        if($data == null) return response()->json(['success' => false]);
+        $cash_mutation = $data->cash_mutation;
+        if($cash_mutation != null){
+            $amount = $data->qty * $data->price;
+            $cash = Cash::find($cash_mutation->cash_id);
+            $cash->balance += $amount;
+            $cash->save();
+            $data->cash_mutation()->delete();
+        }
+        $data->delete();
+        return response()->json(['success' => true]);
     }
 }

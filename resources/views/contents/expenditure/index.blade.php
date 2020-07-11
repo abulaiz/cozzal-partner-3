@@ -50,6 +50,7 @@
 
 <div class="rm" style="display: none;">
 	<p id="api-url-expenditures">{{ route('api.expenditures.index', '1') }}</p>
+	<p id="api-destroy">{{ route('api.expenditures.destroy', '0') }}</p>
 </div>
 
 @endsection

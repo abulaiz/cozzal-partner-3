@@ -85,14 +85,6 @@ class UnitSeeder extends Seeder
         		"unit_number" => "16BE" 
         	] ,
         	[ 
-        		"apartment_id" => 1, 
-        		"owner_id" => Owner::inRandomOrder()->value('id'),
-        		"rent_price" => $rent_price,
-        		"owner_rent_price" => $owner_price,
-        		"charge" => 50000,
-        		"unit_number" => "12BD" 
-        	] ,
-        	[ 
         		"apartment_id" => 2, 
         		"owner_id" => Owner::inRandomOrder()->value('id'),
         		"rent_price" => $rent_price,

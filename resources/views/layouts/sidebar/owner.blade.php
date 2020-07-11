@@ -5,7 +5,19 @@
       <li class=" nav-item @yield('dashboard')"><a href="{{URL::to('dashboard')}}" ><i class="icon-home"></i><span class="menu-title">Dashboard</span></a>
       </li>
 
-      <li class=" nav-item @yield('payment_report')"><a href="{{URL::to('payment_report')}}" ><i class="icon-docs"></i><span class="menu-title">Payment Report</span></a>
+      <li class=" nav-item @yield('reservation_report')"><a href="{{route('reservation.report')}}" ><i class="icon-book-open"></i><span class="menu-title">Resevation List</span></a>
+      </li>
+
+      <li class=" nav-item @yield('expenditure_list')"><a href="{{route('expenditure')}}" ><i class="icon-share-alt"></i><span class="menu-title">Expenditures</span></a>
+      </li>
+
+      <li class=" nav-item @yield('payment_report')"><a href="{{route('payment_report')}}" ><i class="icon-note"></i><span class="menu-title">Waiting Payment</span></a>
+      </li>
+
+      <li class=" nav-item @yield('paid_payment')"><a href="{{ route('payment.paid') }}" ><i class="icon-credit-card"></i><span class="menu-title">Paid Incomes</span></a>
+      </li>
+
+      <li class=" nav-item @yield('units')"><a href="{{ route('units') }}" ><i class="icon-screen-tablet"></i><span class="menu-title">Unit List</span></a>
       </li>
 
     </ul>

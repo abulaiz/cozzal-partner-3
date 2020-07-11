@@ -90,7 +90,9 @@ class BookingController extends Controller
                 "WK" => $request->rent_weekly_price,
                 "MN" => $request->rent_monthly_price,
                 "TP" => $request->rent_price_total
-            ]),            
+            ]),  
+            "mod_prices" => json_encode($request->mod_prices),
+            "days" => json_encode($request->days),          
             "charge" => $request->charge, 
             "discount" => $discount, 
             "amount_bill" => $amount_bill,

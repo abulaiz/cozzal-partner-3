@@ -42,7 +42,21 @@ function tableOptions(){
 	        {data: 'check_out', name: 'check_out'},
 	        {data: 'unit', name: 'unit'},
 	        {data: '_action', name: '_action', orderable: false, searchable: false}
-	    ]   
+	    ],
+	    order: [[1, 'desc']],
+	    createdRow: function( row, data, dataIndex ) {
+	        $( row ).find('td:eq(2)').text( data.check_in.substr(0, 10) );       
+	        $( row ).find('td:eq(3)').text( data.check_out.substr(0, 10) );       
+	    },
+	    fnDrawCallback: function( oSettings ) {
+			$('.table-responsive').on('show.bs.dropdown', function () {
+			     $('.table-responsive').css( "overflow", "inherit" );
+			});
+
+			$('.table-responsive').on('hide.bs.dropdown', function () {
+			     $('.table-responsive').css( "overflow", "auto" );
+			})      
+	    },	    	       
 	};
 }
 

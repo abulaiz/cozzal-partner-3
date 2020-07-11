@@ -76,6 +76,10 @@ Route::resource('expenditures', 'ExpenditureController', ['as' => 'api'])->excep
 ]);
 // Custom Expenditure Index Routes
 Route::get('expenditures/{type}', 'ExpenditureController@index')->name('api.expenditures.index');
+// Approvel approval expenditure
+Route::post('expenditures/approve', 'ExpenditureController@approve')->name('api.expenditures.approve');
+// Pay Approval (Billing) Expenditure
+Route::post('expenditures/pay', 'ExpenditureController@pay')->name('api.expenditures.pay');
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +120,10 @@ Route::get('reservation/canceled', 'ReservationController@canceled')->name('api.
 Route::post('reservation/settlement', 'ReservationController@settlement')->name('api.reservation.settlement');
 // Delete Canceled Reservation
 Route::post('reservation/destroy', 'ReservationController@destroy')->name('api.reservation.destroy');
+// Owner Reservation Report
+Route::get('reservations/report/{type}', 'ReservationController@report')->name('api.reservation.report');
+// Reservation / Booking Invoice
+Route::get('reservation/invoice/{id}', 'ReservationController@invoice')->name('api.reservation.invoice');
 
 /*
 |--------------------------------------------------------------------------
@@ -139,3 +147,23 @@ Route::post('payment/reject', 'PaymentController@reject')->name('api.payment.rej
 Route::post('payment/destroy', 'PaymentController@destroy')->name('api.payment.destroy');
 // Payment Report For Owner
 Route::get('payment/report', 'PaymentController@report')->name('api.payment.report');
+// Paid Owner Payment
+Route::get('payment/paid', 'PaymentController@owner_paid')->name('api.payment.paid');
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Statistic Routes
+|--------------------------------------------------------------------------
+*/
+
+// General Transactions
+Route::get('transactions/{year}', 'DashboardController@transaction_statistic')->name('api.transactions.statistic');
+// General Incomes
+Route::get('incomes/{year}', 'DashboardController@income_statistic')->name('api.incomes.statistic');
+
+// Owner Incomes
+Route::get('incomes_report/{year}', 'DashboardController@owner_income_statistic')->name('api.incomes_report.statistic');
+// Owner Outcomes
+Route::get('outcomes_report/{year}', 'DashboardController@owner_outcome_statistic')->name('api.outcomes_report.statistic');
+// Owner Reservations
+Route::get('reservations_report/{year}', 'DashboardController@owner_reservation_statistic')->name('api.reservations_report.statistic');

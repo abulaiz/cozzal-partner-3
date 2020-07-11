@@ -1,7 +1,7 @@
 @extends('layouts.master')
-@section('site_title','Payment Report')
+@section('site_title','Waiting List Payment')
 @section('payment_report','active')
-@section('content_title','Payment Report')
+@section('content_title','Waiting List Payment')
 
 
 

@@ -13,8 +13,8 @@ class Expenditure extends Model
     {
         parent::boot();
 
-        self::creating(function($model){
-        	if( $model->is_paid){
+        self::saving(function($model){
+        	if( $model->is_paid && $model->cash_id != null){
 	            $cash = Cash::find($model->cash_id);
 	            $old_balance = $cash->balance;
 	            $cash->balance -= $model->price*$model->qty;
@@ -22,7 +22,6 @@ class Expenditure extends Model
 	            $description = $model->unit_id == null ? "11" : "10/".$model->unit_id;
 	            $model->cash_mutation_id = $cash->saveMutation($old_balance, $description);
         	}
-
         });        
 
     }
@@ -42,7 +41,6 @@ class Expenditure extends Model
     }
 
     public function setType($type){
-    	$this->is_approved = false;
 		$this->is_billing = $type != '1';
 		$this->is_paid = $type == '1';
     }

@@ -21,7 +21,13 @@ Route::get('/', function () { return view('auth.login2'); })->middleware('guest'
 Route::group(['middleware' => ['auth']], function () {
 
 	// Dashbord Page
-	Route::get('/dashboard', function () { return view('contents.dashboard.index'); })->name('dashboard');
+	Route::get('/dashboard', function () { 
+		if(Auth::user()->hasRole('owner')){
+			return view('contents.dashboard.owner');
+		} else {
+			return view('contents.dashboard.index'); 			
+		}
+	})->name('dashboard');
 
 	// Bank (Master Data) Page
 	Route::get('/banks', function () { return view('contents.bank.index'); })->name('banks');	
@@ -34,7 +40,13 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/apartments', function () { return view('contents.apartment.index'); })->name('apartments');
 
 	// Unit Page
-	Route::get('/units', function () { return view('contents.unit.index'); })->name('units');
+	Route::get('/units', function () { 
+		if(Auth::user()->hasRole('owner')){
+			return view('contents.unit.owner'); 
+		} else {
+			return view('contents.unit.index'); 
+		}
+	})->name('units');
 	// Manage Unit Page
 	Route::get('/unit/manage/{id}', function ($id) { 
 		return view('contents.unit.manage', compact('id')); 
@@ -52,7 +64,13 @@ Route::group(['middleware' => ['auth']], function () {
 	// Create Expenditure Page
 	Route::get('/expenditure/create', function(){ return view('contents.expenditure.create'); })->name('expenditure.create');
 	// Direct Expenditure List
-	Route::get('/expenditure', function(){ return view('contents.expenditure.index'); })->name('expenditure');
+	Route::get('/expenditure', function(){ 
+		if(Auth::user()->hasRole('owner')){
+			return view('contents.expenditure.owner'); 
+		} else {
+			return view('contents.expenditure.index'); 
+		}
+	})->name('expenditure');
 	// Approval Expenditure List
 	Route::get('/expenditure/approval', function(){ return view('contents.expenditure.approval'); })->name('expenditure.approval');
 
@@ -69,7 +87,18 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/reservation/canceled', function(){
 		return view('contents.reservation.canceled');
 	})->name('reservation.canceled');	
-
+	// Owner Reservation List (As Report)
+	Route::get('/reservation/report', function(){
+		return view('contents.reservation.report');
+	})->name('reservation.report');
+	// Booking Invoice Payment
+	Route::get('/booking/invoice/{id}', function($id){
+		return view('contents.reservation.invoice', compact('id'));
+	})->name('booking.invoice');
+	// Reservation Invoice Payment
+	Route::get('/reservation/invoice/{id}', function($id){
+		return view('contents.reservation.invoice', compact('id'));
+	})->name('reservation.invoice');
 
 	// Owner Payment Index
 	Route::get('/payment', function(){ return view('contents.payment.index'); })->name('payment');
@@ -81,5 +110,8 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/payment_report', function(){ return view('contents.payment.report'); })->name('payment_report');
 	// Invoice PDF
 	Route::get('/payment/invoice/download/{id}', 'PdfController@payment_invoice')->name('payment.invoice.download');
-
+	// Owner Paid Income
+	Route::get('/payment/paid', function(){
+		return view('contents.payment.paid');
+	})->name('payment.paid');
 });

@@ -7,17 +7,23 @@
 
 @section('button_header')
 
-<button class="btn btn-info" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-	<i class="fa fa-plus mr-1"></i>Add Event
+@if(Auth::user()->hasRole('owner'))
+<button class="btn btn-info" type="button" data-toggle="modal" data-target="#modal1">
+  <i class="fa fa-calendar mr-1"></i> Unit Avalibility
 </button>
-<div class="dropdown-menu arrow">
-  <a class="dropdown-item" data-toggle="modal" data-target="#modal1">
-    <i class="fa fa-calendar mr-1"></i> Unit Avalibility
-  </a>  
-  <a class="dropdown-item" data-toggle="modal" data-target="#modal3">
-    <i class="fa fa-pencil-square-o mr-1"></i> Mod Price
-  </a>
-</div> 
+@else
+  <button class="btn btn-info" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-plus mr-1"></i>Add Event
+  </button>
+  <div class="dropdown-menu arrow">
+    <a class="dropdown-item" data-toggle="modal" data-target="#modal1">
+      <i class="fa fa-calendar mr-1"></i> Unit Avalibility
+    </a>  
+    <a class="dropdown-item" data-toggle="modal" data-target="#modal3">
+      <i class="fa fa-pencil-square-o mr-1"></i> Mod Price
+    </a>
+  </div> 
+@endif
 
 @endsection
 
@@ -35,11 +41,21 @@
 
 @section('content')
 
-<div class="row">
+<div class="row">  
 	<div class="col-12">
       <div class="card">
         <div class="card-content collapse show">
           <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-12" id="app">
+                <dynamic-select 
+                    :options="units"
+                    option-value="id"
+                    option-text="name"
+                    placeholder="Type to search"
+                    v-model="unit" />        
+              </div>              
+            </div>
             <div id='unit-calendar' class="animated" style="display: none; opacity: 0;"></div>
             <div class="loader-wrapper" id="waiting-calendar">
               <div class="loader-container">
@@ -77,13 +93,13 @@
   <p id="url-api-availability-delete">{{ route('api.calendar.availability.delete') }}</p>
   <p id="url-api-availability-store">{{ route('api.calendar.availability.store') }}</p>
   <p id="url-api-availability-update">{{ route('api.calendar.availability.update') }}</p>
-
   <p id="url-api-price-delete">{{ route('api.calendar.price.delete') }}</p>
   <p id="url-api-price-store">{{ route('api.calendar.price.store') }}</p>
   <p id="url-api-price-update">{{ route('api.calendar.price.update') }}</p>
-
+  <p id="api-units">{{ route('api.units.index') }}</p>
   <p id="url-api-calendar">{{ route('api.calendar', $id) }}</p>
   <p id="parse-unit-id">{{ $id }}</p>
+  <p id="url-calendar">{{ route('unit.calendar', 0) }}</p>
 </div>
 
 @endsection

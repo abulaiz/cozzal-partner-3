@@ -38,6 +38,14 @@ function _str_empty(str){
 	return str.split(" ").join("") == "" 
 }
 
+function need_description(paid_earning, earning, input_earning, description){
+	if(paid_earning == null){
+		return earning != Number(input_earning) && _str_empty(description);
+	} else {
+		return false;
+	}
+}
+
 var content = new Vue({
 	el : "#content",
 	data : {
@@ -61,6 +69,7 @@ var content = new Vue({
 				for(let i in reservations) reservation_total += Number( JSON.parse(reservations[i].owner_rent_prices).TP );
 
 				this.payments.push({
+					id : res.id,
 					owner : res.owners[i],
 					expenditures : expenditures,
 					reservations : reservations,
@@ -100,7 +109,8 @@ var content = new Vue({
 		},		
 		send(index){
 			let e = this;
-			if(this.payments[index].paid_earning != null && _str_empty(this.payments[index].input_description))
+			let data = this.payments[index];
+			if(need_description(data.paid_earning, data.earning, data.input_earning, data.input_description))
 				return _catch_with_toastr("Description required");
 
 			_leftAlert('Info', 'Processing ...', 'info');
@@ -128,23 +138,26 @@ var content = new Vue({
 		    })
 		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
 		},
-		pay(index){			
-			if(this.payments[index].cash == null)
+		pay(index){		
+			let data = this.payments[index];
+
+			if(data.cash == null)
 				return _catch_with_toastr("Cash required");
-			if(this.payments[index].paid_earning != null && _str_empty(this.payments[index].input_description))
+			if(need_description(data.paid_earning, data.earning, data.input_earning, data.input_description))
 				return _catch_with_toastr("Description required");
 
 			let e = this;
 			_leftAlert('Info', 'Processing ...', 'info');
-			this.payments[index].onsubmit = true;
+			data.onsubmit = true;
 		    axios.post(_URL.pay , {
 		    	reservations : JSON.stringify(this.getReservations(index)),
 		    	expenditures : JSON.stringify(this.getExpenditures(index)),
-		    	total_earning : this.payments[index].earning,
-		    	paid_earning : this.payments[index].input_earning,
-		    	description : _str_empty(this.payments[index].input_description) ? '-' : this.payments[index].input_description,
-		    	owner_id : this.payments[index].owner.id,
-		    	cash_id : this.payments[index].cash.id
+		    	total_earning : data.earning,
+		    	paid_earning : data.input_earning,
+		    	description : _str_empty(data.input_description) ? '-' : data.input_description,
+		    	owner_id : data.owner.id,
+		    	cash_id : data.cash.id,
+		    	id : data.id
 		    }).then(function (response) {
 		        let res = response.data;
 		        if(res.success){

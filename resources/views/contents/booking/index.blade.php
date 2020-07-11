@@ -35,6 +35,9 @@
       </div>
     </div>
   </div>
+  <div class="col-md-12 mt-4">
+    <!-- Empty space -->
+  </div>
 </div>
 
 <div class="modal fade text-left" id="payment" tabindex="-1" role="dialog"  aria-hidden="true">

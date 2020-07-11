@@ -1,5 +1,7 @@
 'use_strict'
 
+const DayClassifiers = require('../../libs/DayClassifiers');
+
 class PriceHelper {
 
 	constructor () {
@@ -15,6 +17,7 @@ class PriceHelper {
 			we : 0, wd : 0, wk : 0, mn : 0, mod : []
 		}
 		this.prices = {}
+		this.day_classifiers = new DayClassifiers();
 	}
 
 	// Utilites Method
@@ -54,11 +57,32 @@ class PriceHelper {
 
 	setURL (url) { this.url = url }
 
+	addModPrices() {
+		this.prices['mod_prices'] = [];
+		for(let i in this.days.mod){
+			this.prices.mod_prices.push({
+				rent_price : this.days.mod[i].rent_price,
+				owner_price : this.days.mod[i].owner_price
+			});
+		}
+	}
+
 	setUnit (data, callback){
 		let e = this;
 		this.unit = data;
 		this.setUnitModPrices((mod_price_count) => {
-			this.describe_days_type();
+			this.day_classifiers.describe_days_type(
+				this.check_in,
+				this.check_out,
+				this.unit_mod_prices,
+				this.days
+			);
+
+			if(this.events.updateDays !== undefined)
+				this.events.updateDays(this.days)
+
+			this.addModPrices();
+
 			this.generatePrice();
 			callback(mod_price_count)
 		});
@@ -135,14 +159,14 @@ class PriceHelper {
 			this.prices['rent_price_total'] = 0;
 
 			for(let i in kind){
-				this.prices['rent_'+kind[i]] = this.days[k[i]] * Number(rent_price[k[i].toUpperCase()])
-				this.prices['owner_'+kind[i]] = this.days[k[i]] * Number(owner_price[k[i].toUpperCase()])
-				this.prices['rent_price_total'] += this.prices['rent_'+kind[i]];
-				this.prices['owner_price_total'] += this.prices['owner_'+kind[i]];
+				this.prices['rent_'+kind[i]] = Number(rent_price[k[i].toUpperCase()])
+				this.prices['owner_'+kind[i]] = Number(owner_price[k[i].toUpperCase()])
+				this.prices['rent_price_total'] += this.days[k[i]] * this.prices['rent_'+kind[i]];
+				this.prices['owner_price_total'] += this.days[k[i]] * this.prices['owner_'+kind[i]];
 			}
 			for(let i in this.days.mod){
-				this.prices['rent_price_total'] += this.days.mod[i].days * Number(this.days.mod[i].rent_price)
-				this.prices['owner_price_total'] += this.days.mod[i].days * Number(this.days.mod[i].owner_price)
+				this.prices['rent_price_total'] += this.days.mod[i].days * Number(this.prices.mod_prices[i].rent_price)
+				this.prices['owner_price_total'] += this.days.mod[i].days * Number(this.prices.mod_prices[i].owner_price)
 			}	
 		} else {
 			this.prices = default_price;
@@ -153,12 +177,12 @@ class PriceHelper {
 			this.prices['owner_price_total'] = 0;
 			this.prices['rent_price_total'] = 0;
 			for(let i in kind){
-				this.prices['rent_price_total'] += Number(this.prices['rent_'+kind[i]]);
-				this.prices['owner_price_total'] += Number(this.prices['owner_'+kind[i]]);
+				this.prices['rent_price_total'] += this.days[k[i]] * Number(this.prices['rent_'+kind[i]]);
+				this.prices['owner_price_total'] += this.days[k[i]] * Number(this.prices['owner_'+kind[i]]);
 			}
 			for(let i in this.days.mod){
-				this.prices['rent_price_total'] += this.days.mod[i].days * Number(this.days.mod[i].rent_price)
-				this.prices['owner_price_total'] += this.days.mod[i].days * Number(this.days.mod[i].owner_price)
+				this.prices['rent_price_total'] += this.days.mod[i].days * Number(this.prices.mod_prices[i].rent_price)
+				this.prices['owner_price_total'] += this.days.mod[i].days * Number(this.prices.mod_prices[i].owner_price)
 			}				
 		}
 
@@ -169,120 +193,10 @@ class PriceHelper {
 		if(default_price == null) 
 			this.prices['normal_amount_bill'] = this.prices['amount_bill'];
 
-		console.log(this.prices['normal_amount_bill'])
-		if(this.events.updatePricingField !== null)
+		if(this.events.updatePricingField !== undefined)
 			this.events.updatePricingField(this.prices)
 	}
 
-	/*
-	|--------------------------------------------------------------------------
-	| Days Clasification section
-	|--------------------------------------------------------------------------
-	*/
-
-	startinweekend(day, week, weekday_count, weekend_count){
-		let we = 0; 
-		let wd = day + 5;
-		while(wd>5){
-			we = 8-week; 
-			day = wd-5;
-			if(day==1) 
-				we=1; 
-			wd = day-we;
-			weekend_count = weekend_count + we;
-			if(wd>5) 
-				weekday_count = weekday_count + 5; 
-			else 
-				weekday_count = weekday_count + wd;
-		}
-		return {'weekday' : weekday_count, 'weekend' : weekend_count};
-	}
-
-	getdetailweek(start_time, day){
-		var wd;
-		var week = this.toDate(start_time).getDay();
-		console.log({start_time : start_time, hari : day})
-		// week = posisi hari, dari minggu (1) - sabtu (7)
-		week++;
-		if(week>5){ //jika dimuai dari weekend
-			return this.startinweekend(day, week, 0, 0);
-		} else { //jika dimulai dri weekday
-			if((week+day)<7) {
-				return {'weekday' : day, 'weekend' : 0};
-			} else {
-				wd = 6 - week;
-				return this.startinweekend(day-wd, 6, wd, 0);
-			}
-		}
-	}
-
-	setModDays(){
-		for(let i in this.unit_mod_prices){
-    		let sdt = this.unit_mod_prices[i].started_at; 
-    		let edt = this.unit_mod_prices[i].ended_at;
-    		
-    		if(this.toDate(sdt) < this.toDate(this.check_in)) 
-    			sdt = this.check_in;
-    		if(this.toDate(edt) > this.toDate(this.check_out)) 
-    			edt = this.check_out;
-    		
-    		let selisih = this.diff_date(sdt,edt);
-    		if( sdt != this.check_in ) selisih++;
-    		
-    		const weeks = this.getdetailweek(sdt, selisih);
-    		this.days.mod.push({
-    			days : weeks.weekday + weeks.weekend, 
-    			owner_price : Number(this.unit_mod_prices[i].owner_price),
-    			rent_price : Number(this.unit_mod_prices[i].price)
-    		})
-			this.days.wd -= weeks.weekday;
-			this.days.we -= weeks.weekend;
-		}
-	}
-
-	setDaily(start, count_day){
-		const weeks = this.getdetailweek(start, count_day);
-		this.days.wd = weeks.weekday;
-		this.days.we = weeks.weekend; 
-	}
-
-	monthly(){ //without mod days
-		let days_total = this.days.wd + this.days.we;
-		if(days_total>=28)
-			return Math.floor(days_total/28); 
-		else 
-			return 0;
-	}
-
-	weekly(monthly){
-		var d = (this.days.wd + this.days.we) - (monthly*28);
-		if(monthly>0){
-			this.days.wd = 0; this.days.we = 0; 
-			if(d==7) return 1;  
-			else if(d>7) { this.days.mn++; return 0; } 
-			else { this.days.wd = d; this.days.we = 0; return 0;}
-		} else {
-			if(d>=7){
-				var m = Math.floor(d/7);
-				var sel = d - (m*7);
-				// posisi check in dimajukan beberapa hari, dan lama pemesanan disesuaikan
-				var last_pointer = this.StringOfDate(this.toDate(this.check_in), d-sel);
-				this.setDaily(last_pointer, sel);
-				return m;
-			} else {
-				this.setModDays();
-				return 0;
-			}
-		}
-	}
-
-	describe_days_type () {
-		this.days.mod = []
-		this.setDaily(this.check_in, this.diff_date(this.check_in, this.check_out));
-		this.days.mn = this.monthly();
-		this.days.wk = this.weekly(this.days.mn);
-		console.log(this.days);
-	}
 }
 
 module.exports = PriceHelper

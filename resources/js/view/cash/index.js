@@ -49,7 +49,11 @@ function tableOptions(){
 	        {data: 'fund', name: 'fund'},
 	        {data: '_type', name: '_type'},
 	        {data: '_description', name: '_description'}
-	    ]
+	    ],
+	    order: [[ 0, 'desc' ]],
+		fnRowCallback: function (nRow, data, iDisplayIndex) {
+			$("td:nth-child(3)", nRow).text(_currencyFormat(data.fund));
+		}
 	};
 }
 
@@ -313,3 +317,7 @@ function loadCashList(){
 }
 
 loadCashList();
+
+window.onload = function(){
+	$(".op-0").css('opacity', '1');
+}

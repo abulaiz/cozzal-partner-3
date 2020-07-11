@@ -112,8 +112,8 @@ class UnitCalendarController extends Controller
         $type = $request->maintenance ? '1' : ( Auth::user()->hasRole('owner') ? '3' : '2' );
 
         CalendarEvent::create([
-        	'started_at' => $request->started_at,
-        	'ended_at' => $request->ended_at,
+        	'started_at' => $request->started_at." 12:00:00",
+        	'ended_at' => $request->ended_at." 12:00:00",
         	'unit_id' => $request->unit_id,
         	'type' => $type,
         	'user_id' => Auth::user()->id,
@@ -153,8 +153,8 @@ class UnitCalendarController extends Controller
         $type = $request->maintenance ? '1' : ( Auth::user()->hasRole('owner') ? '3' : '2' );
      		
         $data->update([
-        	'started_at' => $request->started_at,
-        	'ended_at' => $request->ended_at,
+        	'started_at' => $request->started_at." 12:00:00",
+        	'ended_at' => $request->ended_at." 12:00:00",
         	'type' => $type,
         	'user_id' => Auth::user()->id,
         	'note' => $request->note
@@ -209,8 +209,8 @@ class UnitCalendarController extends Controller
 
         // Store Data
         ModPrice::create([
-            'started_at' => $request->started_at,
-            'ended_at' => $request->ended_at,
+            'started_at' => $request->started_at." 12:00:00",
+            'ended_at' => $request->ended_at." 12:00:00",
             'unit_id' => $request->unit_id,
             'price' => $request->rent_price,
             'owner_price' => $request->owner_price,
@@ -250,8 +250,8 @@ class UnitCalendarController extends Controller
         } 
 
         $data->update([
-            'started_at' => $request->started_at,
-            'ended_at' => $request->ended_at,
+            'started_at' => $request->started_at." 12:00:00",
+            'ended_at' => $request->ended_at." 12:00:00",
             'price' => $request->rent_price,
             'owner_price' => $request->owner_price,
             'user_id' => Auth::user()->id,
