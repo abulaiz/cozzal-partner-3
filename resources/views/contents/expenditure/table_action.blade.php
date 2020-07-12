@@ -1,14 +1,14 @@
 <button class="btn btn-outline-info dropdown-toggle btn-sm" type="button" data-toggle="dropdown"
 aria-haspopup="true" aria-expanded="false">Action</button>
 <div class="dropdown-menu arrow">
-	@if($type == '2')
+	@if($type == '2' && Auth::user()->hasRole('manager'))
 	<a onclick="window._pay(this)" class="dropdown-item" href="javascript:void(0)">
 		<i class="fa fa-money mr-1"></i> Pay Now
 	</a>
 	@endif
-	@if($type == '3')
+	@if($type == '3' && Auth::user()->hasRole('manager'))
 	<a onclick="window._approve(this)" class="dropdown-item" href="javascript:void(0)">
-		<i class="fa fa-money mr-1"></i> Approve
+		<i class="fa fa-check-square-o mr-1"></i> Approve
 	</a>
 	@endif
 	<a class="dropdown-item" href="javascript:void(0)">

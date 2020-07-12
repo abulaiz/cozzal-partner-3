@@ -46,3 +46,33 @@
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+.discovery-wrapper {
+    height: 100%; 
+    width: 100%; 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    z-index: 999999; 
+    background-color: rgba(0, 0, 0, .4);
+}
+
+.fixed-top {
+    z-index: 999;
+}
+
+.discovery-mask {
+    height: 750px; 
+    width: 750px; 
+    position: fixed; 
+    background-color: #FF4961; 
+    bottom: -300px; 
+    right: -300px; 
+    border-radius: 50%;    
+}
+
+.discovery-content{
+    position: fixed; 
+    right: 70px; 
+    bottom: 100px;    
+}

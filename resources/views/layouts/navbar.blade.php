@@ -34,10 +34,6 @@
                 <span class="user-name">{{Auth::user()->name}}</span>
               </a>
               <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ft-user"></i> My Account</a>
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ft-mail"></i> My Inbox</a>
-                <a class="dropdown-item" href="javascript:void(0);"><i class="ft-message-square"></i> Chats</a>
-                <div class="dropdown-divider"></div>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">{{ csrf_field() }}</form>
                 <a class="dropdown-item" onclick="event.preventDefault();document.getElementById('logout-form').submit();" href="#"><i class="ft-power"></i> Logout</a>
               </div>

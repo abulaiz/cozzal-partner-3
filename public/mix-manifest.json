@@ -1,4 +1,6 @@
 {
-    "/js/view/reservation/invoice.js": "/js/view/reservation/invoice.js",
-    "/js/view/reservation/invoice.js.map": "/js/view/reservation/invoice.js.map"
+    "/js/view/expenditure/approval.js": "/js/view/expenditure/approval.js",
+    "/js/view/expenditure/approval.js.map": "/js/view/expenditure/approval.js.map",
+    "/js/view/sidebar.js": "/js/view/sidebar.js",
+    "/js/view/sidebar.js.map": "/js/view/sidebar.js.map"
 }

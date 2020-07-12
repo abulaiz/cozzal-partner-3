@@ -153,6 +153,7 @@ var approve = new Vue({
 					_leftAlert('Success', 'Expenditure has been payed', 'success');
 					e.$refs.close.click();
 					Table2.ajax.reload();
+					window._sidebar.loadInfo();
 				} else {
 					_leftAlert('Sorry', response.data.message, 'warning');
 				}
@@ -190,6 +191,7 @@ var pay = new Vue({
 					_leftAlert('Success', 'Expenditure has been payed', 'success');
 					e.$refs.close.click();
 					Table1.ajax.reload();
+					window._sidebar.loadInfo();
 				} else {
 					_leftAlert('Sorry', response.data.message, 'warning');
 				}
@@ -214,6 +216,7 @@ window._delete = function(e){
 			if(response.data.success){
 				_leftAlert('Success', 'Expenditure successfuly canceled !', 'info');
 				Table.ajax.reload();
+				window._sidebar.loadInfo();
 			} else {
 				_leftAlert('Error', 'Something wrong, try again', 'error');
 			}

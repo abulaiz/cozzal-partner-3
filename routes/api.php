@@ -167,3 +167,6 @@ Route::get('incomes_report/{year}', 'DashboardController@owner_income_statistic'
 Route::get('outcomes_report/{year}', 'DashboardController@owner_outcome_statistic')->name('api.outcomes_report.statistic');
 // Owner Reservations
 Route::get('reservations_report/{year}', 'DashboardController@owner_reservation_statistic')->name('api.reservations_report.statistic');
+
+// Expenditure Notification
+Route::get('notification', 'NotificationController@index')->name('api.notification');

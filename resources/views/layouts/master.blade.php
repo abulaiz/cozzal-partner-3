@@ -66,5 +66,19 @@ data-open="click" data-menu="vertical-menu" data-col="2-columns">
 
   @yield('pageJs')
 
+  <script type="text/javascript" src="{{ URL::asset('js/view/sidebar.js?').uniqid() }}"></script>
+
+  <style type="text/css">
+    .pade-enter-active, .pade-leave-active {
+      transition: transform .5s;
+      transform: scale(1);
+    }
+
+    .pade-enter, .pade-leave-to {
+      opacity: 0;
+      transform: scale(0);
+    }  
+  </style>  
+
 </body>
 </html>

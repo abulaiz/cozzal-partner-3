@@ -23,7 +23,7 @@ class CreateExpenditureTables extends Migration
             $table->boolean('is_billing');
             $table->boolean('is_paid');
             $table->boolean('has_paid')->default(false);
-            $table->dateTime('due_at')->nullable();
+            $table->date('due_at')->nullable();
             $table->timestamps();
 
             $table->foreign('cash_mutation_id')

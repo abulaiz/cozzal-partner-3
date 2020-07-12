@@ -15,11 +15,15 @@
           <ul class="nav nav-tabs nav-underline nav-justified" id="nav-ul">
             <li class="nav-item">
               <a class="nav-link active" @click="show(0)" ref="tab1" id="base-tab11" data-toggle="tab" aria-controls="tab11"
-            href="#tab11" aria-expanded="false"><i class="fa fa-clock-o"></i>Billing</a>
+              href="#tab11" aria-expanded="false"><i class="fa fa-clock-o"></i>Billing
+                <span class="badge badge badge-info ml-2" style="display: none;" id="b-tab"></span>
+              </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" @click="show(1)" ref="tab2" id="base-tab12" data-toggle="tab" aria-controls="tab12" href="#tab12"
-            aria-expanded="false"><i class="fa fa-pencil-square-o"></i>Non Billing</a>
+              aria-expanded="false"><i class="fa fa-pencil-square-o"></i>Non Billing
+                <span class="badge badge badge-info ml-2" style="display: none;" id="nb-tab"></span>
+              </a>
             </li>
           </ul>
           <div class="tab-content px-1 pt-1">

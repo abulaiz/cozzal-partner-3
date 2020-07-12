@@ -1,4 +1,4 @@
-<div class="main-menu menu-fixed menu-dark menu-accordion    menu-shadow " data-scroll-to-active="true">
+<div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" data-scroll-to-active="true" id="sidebar">
   <div class="main-menu-content">
     <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
 
@@ -20,12 +20,14 @@
         </ul>
       </li>
 
-      <li class=" nav-item"><a><i class="icon-share-alt"></i><span class="menu-title">Expenditures</span></a>
+      <li class=" nav-item"><a><i class="icon-share-alt"></i><span class="menu-title">Expenditures</span>
+        <span class="badge badge badge-danger float-right mr-2 op-0" v-if="expenditure.have_notification">N</span>
+      </a>
         <ul class="menu-content">
            <li class="menu-item @yield('create_expenditure')"><a href="{{ route('expenditure.create') }}" >Create Expenditure</a></li>
            <li class="menu-item @yield('expenditure_list')"><a href="{{ route('expenditure') }}">Expenditure List</a></li>
-           <li class="menu-item @yield('approve_expenditure')"><a href="{{ route('expenditure.approval') }}" >Approval Exp
-            <!--<span class="dbadge badge badge-danger float-right mr-2" id="apprv_badge"></span>-->
+           <li class="menu-item @yield('approve_expenditure')" ref="approval_exp"><a href="{{ route('expenditure.approval') }}" >Approval Exp
+            <span v-if="expenditure.have_notification" class="dbadge badge badge-danger float-right mr-2" id="apprv_badge">@{{ expenditure.billing_count+expenditure.non_billing_count }}</span>
            </a></li>
         </ul>
       </li>
@@ -43,8 +45,8 @@
 
       <li class=" nav-item"><a><i class="icon-layers"></i><span class="menu-title">Master Data</span></a>
         <ul class="menu-content">
-          <li class="menu-item @yield('tenants')"><a href="#" >Tenants</a></li>
-          <li class="menu-item @yield('owners')"><a href="#" >Owners</a></li>
+<!--           <li class="menu-item @yield('tenants')"><a href="#" >Tenants</a></li>
+          <li class="menu-item @yield('owners')"><a href="#" >Owners</a></li> -->
           <li class="menu-item @yield('apartments')"><a href="{{ route('apartments') }}" >Apartments</a></li>
           <li class="menu-item @yield('booking_vias')"><a href="{{ route('booking_vias') }}" >Booking Vias</a></li>
           <li class="menu-item @yield('banks')"><a href="{{ route('banks') }}" >Banks</a></li>
@@ -53,4 +55,29 @@
 
     </ul>
   </div>
+
+  <!-- numpang instance gan -->
+  <div class="discovery-wrapper" style="display: none;">
+    <transition name="pade">
+      <div class="discovery-mask" v-show="need_interuption">
+      </div>      
+    </transition>
+    <transition name="pade">
+    <div class="discovery-content" v-show="need_interuption">
+      <h2 class="text-white">Sorry to interupt !</h2>
+      <div style="width: 200px;">
+        <p class="text-white">
+          There is some out of date expenditure, please take an action immediately 
+        </p> 
+        <a href="{{ route('expenditure.approval') }}" class="btn btn-info btn-block">Go to the page</a>
+        <a href="javascript:void(0)" @click="dismiss" class="btn btn-light btn-block">Dismiss</a>
+      </div>
+    </div>
+    </transition>
+  </div>
+
+</div>
+
+<div class="sidebar-parser-data" style="display: none;">
+  <p id="api-notification">{{ route('api.notification') }}</p>
 </div>

@@ -26,6 +26,6 @@
 
   <!-- END Page Level CSS-->
   <!-- BEGIN Custom CSS-->
-  <link rel="stylesheet" type="text/css" href="{{ URL::asset('css/style.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ URL::asset('css/style.css?').uniqid() }}">
   <link rel="stylesheet" type="text/css" href="{{ URL::asset('assets/css/offset-grid.css') }}">
   <link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css/plugins/forms/checkboxes-radios.css') }}">
