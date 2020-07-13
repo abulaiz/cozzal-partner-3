@@ -56,13 +56,17 @@ var nav = new Vue({
 			Table1 = $('#datatables1').DataTable({
 				processing: true, serverSide: true,		
 			    ajax: `${_URL.index}?type=history&owner_id=${app.$data.owner.id}`,
+			    order: [ [3, 'desc'], [0, 'desc'] ],
 			    columns: [
 			        {data: 'receipt_number', name: 'receipt_number'},
 			        {data: 'created_at', name: 'created_at'},
 			        {data: 'nominal_paid', name: 'nominal_paid'},
 			        {data: 'status', name: 'status'},
 			        {data: '_action', name: '_action', orderable: false, searchable: false}
-			    ]				
+			    ],
+				fnRowCallback: function (nRow, data, iDisplayIndex) {
+					$("td:nth-child(3)", nRow).text( _currencyFormat(data.nominal_paid) );
+				}			    				
 			});
 		},
 		init_table2 : function(){
