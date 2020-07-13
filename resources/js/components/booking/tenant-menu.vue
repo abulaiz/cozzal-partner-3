@@ -3,8 +3,8 @@
         <div class="col-md-12" v-if="state == 1">
             <div class="row">
                 <input class="form-control col-md-8 mb-1" v-model="filter" placeholder="Search tenant here" type="text">
-                <ul class="list-group col-md-12" >
-                    <li class="list-group-item" v-if="!onload" v-for="item in tenants" style="max-height: 300px; overflow: auto;">
+                <ul class="list-group col-md-12" style="max-height: 300px; overflow: auto;">
+                    <li class="list-group-item" v-if="!onload" v-for="item in tenants">
                         <div class="pull-right">
                             <button @click="setSelected(item)" type="button" class="btn btn-outline-info btn-sm">Select</button>
                         </div>                    
@@ -64,7 +64,7 @@
             <div class="row">
                 <div class="col-md-12 text-center">
                     <p>You have select 
-                        <span class="font-weight-bold">{{ selected.name }}</span> from <span class="font-weight-bold">{{ selected.email }}</span></p>
+                        <span class="font-weight-bold">{{ selected.name }}</span> from <span class="font-weight-bold">{{ selected.address }}</span></p>
                 </div>
                 <div class="col-md-12 text-center">
                     <button @click="reset" type="button" class="btn btn-warning">Cancel</button>
@@ -107,7 +107,7 @@
                 },
                 selected : {
                     name : '',
-                    email : ''
+                    address : ''
                 }              
             }
         },
@@ -117,7 +117,7 @@
         methods : {
             setSelected : function(data) {
                 this.selected.name = data.name;
-                this.selected.email = data.email;
+                this.selected.address = data.address;
                 this.state = 3;
                 this.$emit('select', data.id)
             },

@@ -20,7 +20,7 @@ class TenantController extends Controller
             return Datatables::of(Tenant::all())->make(true);
 
 
-        return Datatables::of(Tenant::all())
+        return Datatables::of(Tenant::all()->sortByDesc('created_at'))
                             ->addColumn('_action', function($row){
                                 return View('contents.bank.index_table_action', compact('row'))->render();
                             })
@@ -48,8 +48,8 @@ class TenantController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:tenants,email',
-            'phone' => 'required',
+            'email' => 'required|email',
+            'phone' => 'required|unique:tenants,phone',
             'gender' => 'required|string',
             'address' => 'required|max:255'
         ]);
