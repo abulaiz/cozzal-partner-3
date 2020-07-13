@@ -43,7 +43,7 @@ function tableOptions(){
 	        {data: 'unit', name: 'unit'},
 	        {data: '_action', name: '_action', orderable: false, searchable: false}
 	    ],
-	    order: [[1, 'desc']],
+	    order: [[0, 'desc']],
 	    createdRow: function( row, data, dataIndex ) {
 	        $( row ).find('td:eq(2)').text( data.check_in.substr(0, 10) );       
 	        $( row ).find('td:eq(3)').text( data.check_out.substr(0, 10) );       
