@@ -66,6 +66,10 @@ data-open="click" data-menu="vertical-menu" data-col="2-columns">
 
   @yield('pageJs')
 
+  <div class="sidebar-parser-data" style="display: none;">
+    <p id="api-notification">{{ route('api.notification') }}</p>
+  </div>  
+
   <script type="text/javascript" src="{{ URL::asset('js/view/sidebar.js?').uniqid() }}"></script>
 
   <style type="text/css">

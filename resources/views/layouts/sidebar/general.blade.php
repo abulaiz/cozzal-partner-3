@@ -33,7 +33,9 @@
       </li>
 
       @hasrole('manager')
-      <li class=" nav-item @yield('payment')"><a href="{{ route('payment') }}" ><i class="icon-docs"></i><span class="menu-title">Owner Payment</span></a>
+      <li class=" nav-item @yield('payment')"><a href="{{ route('payment') }}" ><i class="icon-docs"></i><span class="menu-title">Owner Payment</span>
+      <span class="badge badge badge-info float-right mr-2 op-0" v-if="owner_payment.accepted_payment > 0">@{{ owner_payment.accepted_payment }}</span>
+      </a>
       </li>
 
       <li class=" nav-item @yield('cashes')"><a href="{{ route('cashs') }}" ><i class="icon-briefcase"></i><span class="menu-title">Cash Management</span></a>
@@ -76,8 +78,4 @@
     </transition>
   </div>
 
-</div>
-
-<div class="sidebar-parser-data" style="display: none;">
-  <p id="api-notification">{{ route('api.notification') }}</p>
 </div>

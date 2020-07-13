@@ -20,19 +20,25 @@ class ExpenditureController extends Controller
     public function index($type)
     {
         if($type == '1') {
-            $data = Expenditure::where('is_paid', true)->get();
+            $data = Expenditure::where('is_paid', true);
         } elseif($type == '2') {
             $data = Expenditure::where('is_billing', true)
-                                ->where('due_at', '!=', null)
-                                ->get();
+                                ->where('due_at', '!=', null);
         } elseif($type == '3') {
             $data = Expenditure::where('is_billing', true)
-                                ->where('due_at', null)
-                                ->get();
+                                ->where('due_at', null);
         }
 
-        $table = Datatables::of($data);
+        if(Auth::user()->hasRole('owner')){
+            $data->whereHas('unit', function($query){
+                    $query->where('owner_id', Auth::user()->id );
+            });
+        }
+        
+        $table = Datatables::of($data->get());
+        
         $table->addColumn('_total', function($row){ return $row->qty*$row->price; });
+        
         if(Auth::user()->hasRole('owner')){
             
             $table->addColumn('_status', function($row){
