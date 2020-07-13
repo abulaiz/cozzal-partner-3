@@ -58,13 +58,15 @@ var nav = new Vue({
 			        {data: 'due_at', name: 'due_at'},
 			        {data: '_action', name: '_action', orderable: false, searchable: false},
 			    ],
-			    order: [[ 0, 'desc' ]],
+			    order: [[6, 'asc']],
 				fnRowCallback: function (nRow, data, iDisplayIndex) {
 					let info = $(this).DataTable().page.info();
 					$("td:nth-child(1)", nRow).html(info.start + iDisplayIndex + 1);
 					$("td:nth-child(4)", nRow).text(_currencyFormat(data.price));
 					$("td:nth-child(6)", nRow).text(_currencyFormat(data._total));
-					$("td:nth-child(7)", nRow).text(data.due_at.substr(0, 10));
+					if( new Date(data.due_at).getTime() < new Date().getTime() ){
+						$(nRow).css('color', 'red');
+					}
 				}					
 			});
 		},
