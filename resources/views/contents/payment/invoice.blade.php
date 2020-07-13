@@ -5,7 +5,7 @@
 
 @section('content')
 
-<div class="row op-0" id="content">
+<div class="row op-0" id="content" style="overflow: auto;">
 	<transition-group type="transition" name="fade">
 		<div class="col-md-12" v-for="(item, i) in payments" :key="i">
 			<transition name="fade">

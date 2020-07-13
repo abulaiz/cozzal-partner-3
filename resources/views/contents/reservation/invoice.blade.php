@@ -12,7 +12,7 @@
 
 @section('content')
 
-<div class="row op-0" id="content">
+<div class="row op-0" id="content" style="overflow: auto;">
 	<div class="col-md-12">
         <div class="card" v-if="invoice != null && !ondownload">          
 			<div class="card-body">
