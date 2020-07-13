@@ -1,4 +1,6 @@
-<div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" data-scroll-to-active="true" id="sidebar">
+<div id="sidebar">
+ 
+<div class="main-menu menu-fixed menu-dark menu-accordion menu-shadow" data-scroll-to-active="true">
   <div class="main-menu-content">
     <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
 
@@ -57,6 +59,7 @@
 
     </ul>
   </div>
+</div>
 
   <!-- numpang instance gan -->
   <div class="discovery-wrapper" style="display: none;">
@@ -78,4 +81,5 @@
     </transition>
   </div>
 
+  
 </div>
