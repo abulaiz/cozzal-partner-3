@@ -119,7 +119,7 @@ class DashboardController extends Controller
 															->get();
     		$reservations = Reservation::whereYear('check_in', $year)
     									->whereMonth('check_in', $i)
-    									->where('is_confirmed', true)
+    									->where('deleted_at', null)
     									->get();
 
             $income_total = 0;
