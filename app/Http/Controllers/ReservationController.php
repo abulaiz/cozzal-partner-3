@@ -47,7 +47,6 @@ class ReservationController extends Controller
                         })
                         ->addColumn('dp', function($row){ 
                             return (int)$row->payment()
-                                            ->where('is_dp', true)
                                             ->sum('nominal');
                         })     
                         ->addColumn('settlement', function($row){
