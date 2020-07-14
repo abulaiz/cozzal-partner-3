@@ -147,12 +147,12 @@ class PaymentController extends Controller
             $has_arranged = false;
             $params = explode(',', $id);
             foreach ($params as $param) {
-                $data = $param[0] == 'r' ? Reservation::find(substr($param, 1)) : Expenditure::find(substr($param, 1));
-                if($data->has_paid) continue;
-                $owners[ $data->unit->owner->id ] = $data->unit->owner;
-                $data->unit->apartment;
-                if($param[0] == 'r') $reservations[] = $data;
-                else $expenditures[] = $data;
+                $d = $param[0] == 'r' ? Reservation::find(substr($param, 1)) : Expenditure::find(substr($param, 1));
+                if($d->has_paid) continue;
+                $owners[ $d->unit->owner->id ] = $d->unit->owner;
+                $d->unit->apartment;
+                if($param[0] == 'r') $reservations[] = $d;
+                else $expenditures[] = $d;
             }
         } else {
             // Security Purpose           
