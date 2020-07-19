@@ -190,6 +190,10 @@ class CashController extends Controller
         $fund = (int)$request->fund;
 
         $initial_cash->balance -= $fund;
+        
+        if($initial_cash->balance < 0)
+            return response()->json(['errors' => ["Balance not enough"], 'success' => false]);
+        
         $initial_cash->save();
         $initial_cash->saveMutation($initial_cash_balance, "1");
 

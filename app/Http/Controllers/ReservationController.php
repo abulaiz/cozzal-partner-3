@@ -51,7 +51,6 @@ class ReservationController extends Controller
                         })     
                         ->addColumn('settlement', function($row){
                             return (int)$row->payment()
-                                            ->where('is_dp', true)
                                             ->sum('settlement');                            
                         })                   
                         ->addColumn('receipt_id', function($row){ 
@@ -67,11 +66,16 @@ class ReservationController extends Controller
     public function settlement(Request $request){
         $id = $request->reservation_id;
 
+        $paid_before = (int)ReservationPayment::where('reservation_id', $id)->sum('nominal');     
+
+        if( (int)$request->fund > $paid_before )
+            return response()->json(['success' => false, 'message' => 'Settlement can not exceed payment']);
+
         $cash = Cash::find($request->cash_id);
         $initial_balance = $cash->balance;
         $cash->balance -= (int)$request->fund;
         if($cash->balance < 0)
-            return response()->json(['success' => false]);
+            return response()->json(['success' => false, 'message' => 'Balance of source fund not enought']);
         $cash->save();       
         $mutation = $cash->saveMutation($initial_balance, "8/".$id ); 
 

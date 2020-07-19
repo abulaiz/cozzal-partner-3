@@ -105,7 +105,7 @@ var payment = new Vue({
 				return _catch_with_toastr('Please select source fund');
 			if( this.input.fund == null )
 				return _catch_with_toastr('Fund is required');
-			if( this.input.fund <= 0 )
+			if( this.input.fund < 0 )
 				return _catch_with_toastr('Fund not meet requirement of payment');			
 
 			let e = this;
@@ -119,7 +119,7 @@ var payment = new Vue({
 					e.$refs.close.click();
 					Table.ajax.reload();
 				} else {
-					_leftAlert('Sorry', 'Balance of source fund not enought', 'warning');
+					_leftAlert('Sorry', response.data.message, 'warning');
 				}
 			})
 			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })			

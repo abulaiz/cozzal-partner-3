@@ -239,7 +239,7 @@ var step2 = new Vue({
 
             if(this.skip_watch_check_out) {this.skip_watch_check_out = false; return;};
             
-            if(this.check_in == null) { this.check_out = null; _leftAlert('Error !', 'Please set check in please', 'error', false);  return; }
+            if(this.check_in == null) { this.check_out = null; _leftAlert('Error !', 'Please set check in first', 'error', false);  return; }
             
             let e = this;
             this.skip_watch_count_day = true;

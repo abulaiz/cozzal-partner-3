@@ -152,7 +152,7 @@ var approve = new Vue({
 				due_at : this.due_date
 			}).then(function (response) {
 				if(response.data.success){
-					_leftAlert('Success', 'Expenditure has been payed', 'success');
+					_leftAlert('Success', 'Your request successfuly executed', 'success');
 					e.$refs.close.click();
 					Table2.ajax.reload();
 					window._sidebar.loadInfo();
@@ -190,7 +190,7 @@ var pay = new Vue({
 				cash_id : this.cash.id
 			}).then(function (response) {
 				if(response.data.success){
-					_leftAlert('Success', 'Expenditure has been payed', 'success');
+					_leftAlert('Success', 'Expenditure successfuly paid', 'success');
 					e.$refs.close.click();
 					Table1.ajax.reload();
 					window._sidebar.loadInfo();

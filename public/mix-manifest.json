@@ -1,4 +1,10 @@
 {
+    "/js/view/booking/create.js": "/js/view/booking/create.js",
+    "/js/view/booking/create.js.map": "/js/view/booking/create.js.map",
     "/js/view/expenditure/approval.js": "/js/view/expenditure/approval.js",
-    "/js/view/expenditure/approval.js.map": "/js/view/expenditure/approval.js.map"
+    "/js/view/expenditure/approval.js.map": "/js/view/expenditure/approval.js.map",
+    "/js/view/reservation/canceled.js": "/js/view/reservation/canceled.js",
+    "/js/view/reservation/canceled.js.map": "/js/view/reservation/canceled.js.map",
+    "/js/view/unit/calendar.js": "/js/view/unit/calendar.js",
+    "/js/view/unit/calendar.js.map": "/js/view/unit/calendar.js.map"
 }

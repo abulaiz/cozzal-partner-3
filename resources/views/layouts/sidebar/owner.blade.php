@@ -5,7 +5,7 @@
       <li class=" nav-item @yield('dashboard')"><a href="{{URL::to('dashboard')}}" ><i class="icon-home"></i><span class="menu-title">Dashboard</span></a>
       </li>
 
-      <li class=" nav-item @yield('reservation_report')"><a href="{{route('reservation.report')}}" ><i class="icon-book-open"></i><span class="menu-title">Resevation List</span></a>
+      <li class=" nav-item @yield('reservation_report')"><a href="{{route('reservation.report')}}" ><i class="icon-book-open"></i><span class="menu-title">Reservation List</span></a>
       </li>
 
       <li class=" nav-item @yield('expenditure_list')"><a href="{{route('expenditure')}}" ><i class="icon-share-alt"></i><span class="menu-title">Expenditures</span></a>
