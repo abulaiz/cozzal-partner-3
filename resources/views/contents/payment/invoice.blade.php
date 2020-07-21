@@ -92,7 +92,7 @@
 			                  <table class="table">
 			                    <thead>
 			                      <tr>
-			                        <th colspan="6"><center>Unit Revenue</center></th>
+			                        <th colspan="4"><center>Unit Revenue</center></th>
 			                      </tr>
 			                      <tr>
 			                        <th>#</th>
@@ -109,7 +109,7 @@
 			                        <td class="text-right">@{{ JSON.parse(data.owner_rent_prices).TP.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
 			                      </tr>
 			                      <tr>
-			                        <td colspan="4"><strong>Total Revenue</strong></td>
+			                        <td colspan="3"><strong>Total Revenue</strong></td>
 			                        <td class="text-right font-weight-bold">@{{ toIDR(item.reservation_total) }}</td>
 			                      </tr>
 			                    </tbody>
