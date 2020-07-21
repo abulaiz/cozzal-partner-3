@@ -98,7 +98,6 @@
 			                        <th>#</th>
 			                        <th>Check In/Check Out</th>
 			                        <th>Unit</th>
-			                        <th>Apartment</th>
 			                        <th class="text-right">Total Price</th>
 			                      </tr>
 			                    </thead>
@@ -106,8 +105,7 @@
 			                      <tr v-for="(data, index) in item.reservations">
 			                        <td>@{{ index+1 }}</td>
 			                        <td>@{{ data.check_in.substr(0, 10) }} / @{{ data.check_out.substr(0, 10) }}</td>
-			                        <td>@{{ data.unit_number }}</td>
-			                        <td>@{{ data.unit.apartment.name }}</td>
+			                        <td>@{{ data.unit.name }}</td>
 			                        <td class="text-right">@{{ JSON.parse(data.owner_rent_prices).TP.replace(/\B(?=(\d{3})+(?!\d))/g, ",") }}</td>
 			                      </tr>
 			                      <tr>
