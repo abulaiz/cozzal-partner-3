@@ -38,7 +38,7 @@ class DashboardController extends Controller
       return $interval->format($differenceFormat);
     }
 
-    private function describe_monthly_transaction($datas, $overDays, $sumDays){	
+    private function describe_monthly_transaction($datas, $overDays, $sumDays, $i){	
     	$monthDays = 0;
     	$newOverDays = 0;
     	foreach ($datas as $data) {
@@ -89,9 +89,9 @@ class DashboardController extends Controller
             $cancellations = $unit_id == null ? $cancellations->get() : $cancellations->where('unit_id', $unit_id)->get();			
 
 
-    		$dr = $this->describe_monthly_transaction($reservations, $overDays['reservation'], $sumDays);
-    		$db = $this->describe_monthly_transaction($bookings, $overDays['booking'], $sumDays);
-    		$dc = $this->describe_monthly_transaction($cancellations, $overDays['canceled'], $sumDays);
+    		$dr = $this->describe_monthly_transaction($reservations, $overDays['reservation'], $sumDays, $i);
+    		$db = $this->describe_monthly_transaction($bookings, $overDays['booking'], $sumDays, $i);
+    		$dc = $this->describe_monthly_transaction($cancellations, $overDays['canceled'], $sumDays, $i);
 
     		$overDays['reservation'] = $dr->overDays;
     		$overDays['booking'] = $db->overDays;
