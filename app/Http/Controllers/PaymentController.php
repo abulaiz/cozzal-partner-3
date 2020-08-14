@@ -183,6 +183,7 @@ class PaymentController extends Controller
 
         return response()->json([
             'id' => $data == null ? null : $data->id,
+            'cash_mutation_id' => $data == null ? null : $data->cash_mutation_id,
             'role' => Auth::user()->getRoleNames()[0],
             'owners' => $owners,
             'reservations' => $reservations,
@@ -219,8 +220,8 @@ class PaymentController extends Controller
         if($cash->balance < 0)
             return response()->json(['success' => false]);
         $cash->save();
-        $cash_mutation_id = $cash->saveMutation($initial_balance, "4");
-        if($request->id == null){
+        $cash_mutation_id = $cash->saveMutation($initial_balance, "4", $request->file('attachment'));
+        if($request->id == null || $request->id == 'null'){
             $this->make_payment($request, true, $cash_mutation_id);
         } else {
             Payment::find($request->id)->update([

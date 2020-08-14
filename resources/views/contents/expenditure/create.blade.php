@@ -123,6 +123,12 @@
                     <label>Short Description </label>
                     <input type="text" v-model="description" required class="form-control" placeholder="Exependiture Description" maxlength="50">           
                   </div>
+                </div>
+                <div class="col-md-6" v-if="type.id == 1">
+                  <div class="form-group">
+                      <label>Payment Slip</label>
+                      <upload-image v-model="attachment"></upload-image>
+                  </div>                  
                 </div>                                          
               </div>
             </fieldset>             

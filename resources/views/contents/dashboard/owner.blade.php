@@ -48,14 +48,42 @@
 			</div>
 			<div class="card-content collapse show">
 				<div class="card-body row">
-					<div :class="'col-md-12'+(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'income'">
-					    <income-statistic v-if="statistic_collection.income != null" :chart-data="statistic_collection.income"></income-statistic>					
+					<div class="col-md-9">
+						<div :class="(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'income'">
+						    <income-statistic v-if="statistic_collection.income != null" :chart-data="statistic_collection.income"></income-statistic>					
+						</div>
+						<div :class="(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'outcome'">
+						    <income-statistic v-if="statistic_collection.outcome != null" :chart-data="statistic_collection.outcome"></income-statistic>					
+						</div>
+						<div :class="(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'reservation'">
+						    <transaction-statistic v-if="statistic_collection.reservation != null" :chart-data="statistic_collection.reservation"></transaction-statistic>					
+						</div>						
 					</div>
-					<div :class="'col-md-12'+(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'outcome'">
-					    <income-statistic v-if="statistic_collection.outcome != null" :chart-data="statistic_collection.outcome"></income-statistic>					
-					</div>
-					<div :class="'col-md-12'+(first_load ? ' op-0' : '')" v-show="first_load || statistic_mode == 'reservation'">
-					    <transaction-statistic v-if="statistic_collection.reservation != null" :chart-data="statistic_collection.reservation"></transaction-statistic>					
+					<div class="col-md-3">
+						<div class="list-group">
+							<a href="javascript:void(0)" class="list-group-item list-group-item-action">
+								<div class="media">
+				                    <div class="media-body text-left">
+				                      <h3 class="success">@{{ reservation_total }} Day</h3>
+				                      <span>Total Reservations</span>
+				                    </div>
+				                    <div class="media-right media-middle">
+				                      <i class="fa fa-check-square-o success font-large-2 float-right"></i>
+				                    </div>
+				                </div>						
+							</a>
+							<a href="javascript:void(0)" class="list-group-item list-group-item-action">
+								<div class="media">
+				                    <div class="media-body text-left">
+				                      <h3 class="info">@{{ _currencyFormat(profit_total) }}</h3>
+				                      <span>Total Profit (IDR)</span>
+				                    </div>
+				                    <div class="media-right media-middle">
+				                      <i class="fa fa-briefcase info font-large-2 float-right"></i>
+				                    </div>
+				                </div>					
+							</a>
+						</div>							
 					</div>															
 				</div>
 			</div>

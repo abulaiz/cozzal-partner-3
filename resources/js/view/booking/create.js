@@ -26,6 +26,7 @@ import 'vue-phone-number-input/dist/vue-phone-number-input.css';
 Vue.component('vue-phone-number-input', VuePhoneNumberInput);
 
 Vue.component('tenant-menu', require('../../components/booking/tenant-menu.vue').default);
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
 const PriceHelper = require('./price_helper');
 
 var _URL = {};
@@ -46,7 +47,7 @@ Helper.setURL(_URL);
 var unvalidate = {};
 
 function _catch_with_toastr(message){
-    _leftAlert('Sorry !', message, 'error', false);
+    _leftAlert('Sorry !', message, 'warning', false);
     return false;
 }
 
@@ -68,9 +69,11 @@ function step3_validation(data = step3.$data){
 }
 
 function step5_validation(data = step5.$data){ 
+    if(data.payment_type.id != 3 && data.attachment == null)
+        return _catch_with_toastr("Please add payment slip image")
     if(data.booking_via == null || data.booking_via == {}) 
         return _catch_with_toastr("Booking Via required");
-    if(data.cash == null || data.cash == {})
+    if( (data.cash == null || data.cash == {}) && data.payment_type.id != 3 )
         return _catch_with_toastr("DP Via required");
     if(Number(step4.$data.price.deposite) > 0 && Number(data.dp) < Number(step4.$data.price.deposite))
         return _catch_with_toastr("DP can'nt least from deposite");  
@@ -101,7 +104,7 @@ function form_onsubmit(state = true){
 
 function submit(){
     form_onsubmit();
-    axios.post(_URL.store , {
+    let form_datas = {
         amount_bill : step4.$data.price.amount_bill,
         normal_amount_bill : step4.$data.price.normal_amount_bill,
         dp : step5.$data.dp,
@@ -123,11 +126,17 @@ function submit(){
         rent_weekly_price : step4.$data.price.rent_weekly_price,
         rent_monthly_price : step4.$data.price.rent_monthly_price,
         rent_price_total : step4.$data.price.rent_price_total,
-        mod_prices : step4.$data.mod_prices,
-        days : step2.$data.days,
+        mod_prices : JSON.stringify(step4.$data.mod_prices),
+        days : JSON.stringify(step2.$data.days),
         charge : step4.$data.price.charge,
-        cash_id : step5.$data.cash.id
-    }).then(function (response) {
+        cash_id : step5.$data.cash == null ? null : step5.$data.cash.id,
+        attachment : step5.$data.attachment
+    };
+    let data = new FormData();
+    for(let i in form_datas)
+        data.append(i, form_datas[i])
+    let config = {header : { 'Content-Type' : 'multipart/form-data' }}
+    axios.post(_URL.store, data, config ).then(function (response) {
         let res = response.data;
         if(res.success){
             window._setMessage(res.direct_path, res.message, 'success');
@@ -262,8 +271,8 @@ var step2 = new Vue({
     created : function(){
         Helper.addEventListener('updateDays', (params) => { 
             this.days = params; 
-            console.log(this.days) 
             step4.setModPrices(this.days.mod)
+            step4.setDateInfo(params)
         })
     }
 });
@@ -277,7 +286,7 @@ var step3 = new Vue({
         },        
         unit : null,
         apartment : null,
-        guest_count : 1,
+        guest_count : 0,
         unit_loaded : false
     },
     methods : {
@@ -308,7 +317,11 @@ var step3 = new Vue({
                     // if has mod prices
                 })
         },
-        guest_count : function(value){ Helper.setGuestCount(value) }
+        guest_count : function(value){ 
+            Helper.setGuestCount(value, (showCharge)=>{
+                step4.setChargeVisibility(showCharge)
+            }) 
+        }
     },    
     created : function(){
         let e = this;
@@ -353,26 +366,43 @@ var step4 = new Vue({
             numeral: true,
             numeralThousandsGroupStyle: 'thousand'       
         },
-        prevent_cleave_changed : false
+        prevent_cleave_changed : false,
+        date_info : null
     },
     methods : {
-        cleaveDebounce1 : function(){
+        cleaveDebounce1: function(){
             Helper.generatePrice(false, this.price, true)
         },
-        cleaveDebounce2 : function(){
+        cleaveDebounce2: function(){
             Helper.generatePrice(false, this.price)
         }, 
-        setModPrices : function(data){ this.mod_prices = data },
-        modPriceKeyUp : function(){ this.debounceCleave1() }      
+        setModPrices: function(data){ this.mod_prices = data },
+        modPriceKeyUp: function(){ this.debounceCleave1() },
+        setChargeVisibility: function(showCharge){ this.show.charge = showCharge } ,
+        setDateInfo: function(days){ 
+            let description = "";
+            let day_type = { wd: 'Weekday', we: 'Weekend', wk: 'Weekly', mn: 'Monthly' }
+            for(let i in day_type){
+                if( days[i] != 0 ) 
+                    description += `, ${days[i]} ${day_type[i]}`
+            }
+            let mod_days_count = 0;
+            for(let i in days.mod)
+                mod_days_count += days.mod[i].days;
+
+            if(mod_days_count > 0)
+                description += `, ${mod_days_count} Overrided Day`
+            
+            this.date_info = description.substr(1)
+        }    
     },
-    created : function(){
+    mounted: function(){
         this.debounceCleave1 = _.debounce(this.cleaveDebounce1, 200)
         this.debounceCleave2 = _.debounce(this.cleaveDebounce2, 200)
         Helper.addEventListener('showPricingField', (params) => { this.show = params })
         Helper.addEventListener('updatePricingField', (params) => { 
             this.prevent_cleave_changed = true;
             this.price = params; 
-            console.log(this.price);
             setTimeout(() => {
                 this.prevent_cleave_changed = false;
             }, 100)
@@ -394,7 +424,13 @@ var step4 = new Vue({
         ], () => {
             if(this.prevent_cleave_changed) return;
             this.cleaveDebounce2()
-        });                
+        });
+
+        $(".tooltipp" ).tooltip({
+            content:function(){
+                return this.getAttribute("title");
+            }           
+        });                         
     }
 })
 
@@ -403,12 +439,19 @@ var step5 = new Vue({
     data : {
         option : {
             booking_vias : [],
-            cashes : []
+            cashes : [],
+            payment_types : [
+                {id: 1, name: 'Full Payment'},
+                {id: 2, name: 'Custom Payment'},
+                {id: 3, name: 'Without Payment'}
+            ]
         },
         booking_via : null,
         cash : null,
+        payment_type : null,
         dp : 0,
         note : '',
+        attachment : null,
         cleave : {
             numeral: true,
             numeralThousandsGroupStyle: 'thousand'       
@@ -417,6 +460,18 @@ var step5 = new Vue({
     created : function(){
         axios.get(_URL.cash).then( (response) => { this.option.cashes = response.data })
         axios.get(_URL.booking_via).then( (response) => { this.option.booking_vias = response.data.data })
+        this.payment_type = {id: 2, name: 'Custom Payment'}
+    },
+    watch : {
+        payment_type : function(val){
+            if(val == null)
+                this.payment_type = {id: 2, name: 'Custom Payment'}
+
+            if(val.id == 1) 
+                this.dp = step4.$data.price.amount_bill;
+            else if(val.id == 3)
+                this.dp = 0
+        }
     }
 })
 

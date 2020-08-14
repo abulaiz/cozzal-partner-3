@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('site_title','Cashs')
-@section('cashs','active')
+@section('cashes','active')
 @section('content_title','Cashs')
 
 
@@ -89,6 +89,7 @@
 	                                <td>Mutation Fund</td>
 	                                <td>Type</td>
 	                                <td>Description</td>
+	                                <td>Action</td>
 								</tr>
 							</thead>
 							<tbody>
@@ -116,6 +117,11 @@
 	@include('contents.cash.index_add_balance')
 </div>
 
+<!-- Modal Detail -->
+<div class="modal fade text-left" id="modal4" tabindex="-1" role="dialog"  aria-hidden="true">
+	@include('contents.cash.index_detail')
+</div>
+
 <div class="rm" style="display: none;">
 	<p id="url-api-cashes">{{ route('api.cashes.index') }}</p>
 	<p id="url-api-cashes-store">{{ route('api.cashes.store') }}</p>
@@ -123,6 +129,7 @@
 	<p id="url-api-cashes-destroy">{{ route('api.cashes.destroy', '0') }}</p>
 	<p id="url-api-cash-mutations">{{ route('api.cash.mutations') }}</p>
 	<p id="url-api-cash-mutation-store">{{ route('api.cash.mutation.store') }}</p>
+	<p id="url-payment-slip">{{ route('payment_slip', 0) }}</p>
 </div>
 
 @endsection
@@ -135,5 +142,16 @@
 <script type="text/javascript" src="{{URL::asset('assets/datatables/datatables.min.js')}}"></script>
 
 <script type="text/javascript" src="{{ URL::asset('js/view/cash/index.js?').uniqid() }}"></script>
+
+<style type="text/css">
+  .vue-dynamic-select{
+    padding: 0.6rem 1rem !important;
+  }
+
+  .vue-dynamic-select .result-list{
+    left: 7px;
+    top: 36px;
+  }	
+</style>
 
 @endsection

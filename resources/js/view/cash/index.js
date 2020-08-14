@@ -15,6 +15,8 @@ Vue.component('cleave', Cleave);
 import DynamicSelect from 'vue-dynamic-select'
 Vue.component('dynamic-select', DynamicSelect);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 // Vue Charts
 import ECharts from 'vue-echarts'
 import 'echarts/lib/chart/pie'
@@ -30,13 +32,16 @@ _URL['update'] = $("#url-api-cashes-update").text();
 _URL['destroy'] = $("#url-api-cashes-destroy").text();
 _URL['mutation'] = $("#url-api-cash-mutations").text();
 _URL['store_mutation'] = $("#url-api-cash-mutation-store").text();
+_URL['payment_slip'] = $("#url-payment-slip").text();
 
 $(".rm").remove();
 
-var cleaveOption = {
+const cleaveOption = {
     numeral: true,
     numeralThousandsGroupStyle: 'thousand'
 };
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 function tableOptions(){
 	return {
@@ -48,7 +53,8 @@ function tableOptions(){
 	        {data: '_cash', name: '_cash'},
 	        {data: 'fund', name: 'fund'},
 	        {data: '_type', name: '_type'},
-	        {data: '_description', name: '_description'}
+	        {data: '_description', name: '_description'},
+	        {data: '_action', name: '_action', orderable: false, searchable: false}
 	    ],
 	    order: [[ 0, 'desc' ]],
 		fnRowCallback: function (nRow, data, iDisplayIndex) {
@@ -140,6 +146,7 @@ var add_fund = new Vue({
 		fund : '',
 		cleaveOption : cleaveOption,
 		cash_name : '',
+		attachment : null,
 		onsubmit : false
 	},
 	methods : {
@@ -147,19 +154,20 @@ var add_fund = new Vue({
 			this.id = id;
 			this.cash_name = name;
 			this.fund = '';
+			this.attachment = null;
 		},
 		submit : function(){
-			let e = this;
-			e.onsubmit = true;
-			axios.post(_URL.update , {
-				id :  e.id,
-				fund : e.fund,
-				_method : 'PUT'
-			}).then(function (response) {
+			let data = new FormData();
+			data.append('id', this.id)
+			data.append('fund', this.fund)
+			data.append('attachment', this.attachment == null ? '' : this.attachment)
+			data.append('_method', 'PUT')
+			this.onsubmit = true;
+			axios.post(_URL.update , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'Data successfuly updated !', 'success');
 					Table.ajax.reload();
-					e.$refs.closeModal.click();
+					this.$refs.closeModal.click();
 					loadCashList();
 				} else {
 					for(let i in response.data.errors){
@@ -167,8 +175,8 @@ var add_fund = new Vue({
 					}
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-			.then(function(){ e.onsubmit = false; })			
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
+			.then( () => { this.onsubmit = false; })			
 		}
 	}
 });
@@ -224,22 +232,25 @@ var create_cash = new Vue({
 		cleaveOption : cleaveOption,
 		name : '',
 		balance : '',
+		attachment : null,
 		onsubmit : false
 	},
 	methods : {
 		submit : function(){
-			let e = this;
-			e.onsubmit = true;
-			axios.post(_URL.store , {
-				name :  e.name,
-				balance : e.balance
-			}).then(function (response) {
+			let data = new FormData();
+			data.append('name', this.name)
+			data.append('balance', this.balance)
+			data.append('attachment', this.attachment == null ? '' : this.attachment)
+			this.onsubmit = true;
+			
+			axios.post(_URL.store , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'Data successfuly updated !', 'success');
-					e.name = '';
-					e.balance = '';
+					this.name = '';
+					this.balance = '';
+					this.attachment = null;
 					Table.ajax.reload();
-					e.$refs.closeModal.click();
+					this.$refs.closeModal.click();
 					loadCashList();
 				} else {
 					for(let i in response.data.errors){
@@ -247,8 +258,8 @@ var create_cash = new Vue({
 					}
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-			.then(function(){ e.onsubmit = false; })
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
+			.then( () => { this.onsubmit = false; })
 		}
 	}
 });
@@ -261,24 +272,26 @@ var create_mutation = new Vue({
 		cashes : [],
 		fund : "",
 		cleaveOption : cleaveOption,
+		attachment : null,
 		onsubmit : false
 	},
 	methods : {
 		submit : function(){
-			let e = this;
-			e.onsubmit = true;
-			axios.post(_URL.store_mutation , {
-				from_cash_id :  e.from_cash_id == null ? null : e.from_cash_id.id,
-				to_cash_id : e.to_cash_id == null ? null : e.to_cash_id.id,
-				fund : e.fund
-			}).then(function (response) {
+			let data = new FormData();
+			data.append('from_cash_id', this.from_cash_id == null ? null : this.from_cash_id.id)
+			data.append('to_cash_id', this.to_cash_id == null ? null : this.to_cash_id.id)
+			data.append('fund', this.fund)
+			data.append('attachment', this.attachment == null ? '' : this.attachment)
+			this.onsubmit = true;
+			axios.post(_URL.store_mutation , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'Data successfuly updated !', 'success');
-					e.from_cash_id = null;
-					e.to_cash_id = null;
-					e.fund = '';
+					this.from_cash_id = null;
+					this.to_cash_id = null;
+					this.fund = '';
 					Table.ajax.reload();
-					e.$refs.closeModal.click();
+					this.$refs.closeModal.click();
+					this.attachment = null;
 					loadCashList();
 				} else {
 					for(let i in response.data.errors){
@@ -286,14 +299,26 @@ var create_mutation = new Vue({
 					}
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-			.then(function(){ e.onsubmit = false; })
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
+			.then( () => { this.onsubmit = false; })
 		},
 		setData : function(data){
 			this.cashes = data;
 		}		
 	}
 });
+
+var detail_mutation = new Vue({
+	el : "#detail-mutation",
+	data : {
+		data : null
+	},
+	methods : {
+		setData(data){
+			this.data = data;
+		}
+	}
+})
 
 function setChart(data){
 	let series_data = [];
@@ -320,4 +345,19 @@ loadCashList();
 
 window.onload = function(){
 	$(".op-0").css('opacity', '1');
+}
+
+window.detail = function(e){
+	let data = Table.row($(e).parents('tr')).data();
+	console.log(data)
+	detail_mutation.setData({
+		mutation_date : data.updated_at,
+		cash : data._cash,
+		fund : _currencyFormat(data.fund),
+		type : data._type,
+		description : data._description,
+		executor : data._executor,
+		attachment : _URL.payment_slip.replace("/0", "/"+data.id)
+	})
+	$("#modal4").modal();
 }

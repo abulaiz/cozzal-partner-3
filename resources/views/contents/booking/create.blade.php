@@ -185,22 +185,26 @@
                   :options="cleave"></cleave>
                 </div>                   
               </div>  
-              <hr>
-              <div v-show="show.charge" class="offset-md-6 col-md-6">
+              <div class="col-md-6 mb-1">
+                <a href="javascript:void(0)" class="btn btn-outline-info btn-sm tooltipp" :title="date_info">
+                  <i class="fa fa-calendar"></i>
+                </a>
+              </div>
+              <div v-show="show.charge" class="col-md-6">
                 <div class="form-group">
-                  <label>Charge :</label>
+                  <label>Charge : @{{ show.charge ? 'anjay' : 'tai' }}</label>
                   <cleave class="form-control" v-model="price.charge" 
                   :options="cleave"></cleave>
                 </div>
               </div>  
-              <div v-show="show.deposite" class="offset-md-6 col-md-6">
+              <div v-show="show.deposite" :class="`${show.charge ? 'offset-md-6' : ''} col-md-6`">
                 <div class="form-group">
                   <label>Deposite :</label>
                   <cleave class="form-control" v-model="price.deposite" 
                   :options="cleave"></cleave>
                 </div>
               </div>  
-              <div class="offset-md-6 col-md-6">
+              <div :class="`${show.deposite || show.charge ? 'offset-md-6' : ''} col-md-6`">
                 <div class="form-group">
                   <label><strong>Amount Bill :</strong></label>
                   <cleave class="form-control" v-model="price.amount_bill" :options="cleave"></cleave>
@@ -215,18 +219,18 @@
               <div class="row" id="_step5">
                 <div class="col-md-6">
                   <div class="form-group">
-                    <label>Booking Via :</label>
+                    <label>Payment Type :</label>
                     <div>
                         <dynamic-select 
-                            :options="option.booking_vias"
+                            :options="option.payment_types"
                             option-value="id"
                             option-text="name"
-                            placeholder="Type to search"
-                            v-model="booking_via" />                    
+                            placeholder="Select one"
+                            v-model="payment_type" />  
                     </div>
                   </div>
-                </div>   
-                <div class="col-md-6">
+                </div>
+                <div class="col-md-6" v-if="payment_type.id != 3">
                   <div class="form-group">
                     <label>DP Via :</label>
                     <div>
@@ -239,14 +243,33 @@
                     </div>
                   </div>
                 </div>  
-                <div class="col-md-6">
+                <div class="col-md-6" v-if="payment_type.id != 3">
                   <div class="form-group">
-                    <label><strong>DP :</strong></label>
-                    <cleave class="form-control" v-model="dp" 
+                    <label>Payment Slip</label>
+                    <upload-image v-model="attachment"></upload-image>
+                  </div>                  
+                </div>
+                <div class="col-md-6" v-if="payment_type.id != 3">
+                  <div class="form-group">
+                    <label>DP :</label>
+                    <cleave class="form-control" v-model="dp" :readonly="payment_type.id != 2"
                     :options="cleave"></cleave>
                   </div>
                 </div> 
-                <div class="col-md-6"></div>
+                <div class="col-md-12 border-top border-top-grey border-top-lighten-2 pt-1"></div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Booking Via :</label>
+                    <div>
+                        <dynamic-select 
+                            :options="option.booking_vias"
+                            option-value="id"
+                            option-text="name"
+                            placeholder="Type to search"
+                            v-model="booking_via" />                    
+                    </div>
+                  </div>
+                </div>   
                 <div class="col-md-6">
                   <div class="form-group">
                     <label>Note :</label>
@@ -303,6 +326,10 @@
 
 <link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css/plugins/forms/wizard.min.css') }}">
 <script src="{{ URL::asset('app-assets/vendors/js/extensions/jquery.steps.min.js') }}" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/vendors/css/ui/jquery-ui.min.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ URL::asset('app-assets/css/plugins/ui/jqueryui.css') }}">
+<script src="{{ URL::asset('app-assets/js/core/libraries/jquery_ui/jquery-ui.min.js') }}" type="text/javascript"></script>
 
 <script type="text/javascript" src="{{ URL::asset('js/view/booking/create.js?').uniqid() }}"></script>
 

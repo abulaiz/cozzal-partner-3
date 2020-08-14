@@ -26,14 +26,10 @@ var app = new Vue({
     },	
 	data : {
 		statistic_mode : 'income', // income, outcome, reservation
-		total_reservation : 0,
 		first_load : true,
-		total_booking : 0,
-		total_cancellation : 0,
-		total_income : 0,
-		total_gross_profit : 0,
-		income_collection: null,
-		transaction_collection : null,
+		current_profit_year : null,
+		profit_total : 0,
+		reservation_total : 0,
 		statistic_collection : {
 			income : null, outcome : null, reservation : null
 		},
@@ -68,6 +64,21 @@ var app = new Vue({
 			    labels: this.months,
 			    datasets: datasets
     		}
+    	},
+    	setReservationTotal(data){
+    		this.reservation_total = 0;
+    		for(let i in data)
+    			for(let j in data[i])
+    				this.reservation_total += data[i][j]
+    	},
+    	setProfitTotal(data, type, year){ // type : 1 : income, -1 : outcome
+    		if(this.current_profit_year != year){
+    			this.profit_total = 0;
+    			this.current_profit_year = year;
+    		}
+    		for(let i in data)
+    			for(let j in data[i])
+    				this.profit_total += type*data[i][j]    		
     	}	   	
     },
     watch : {
@@ -77,12 +88,15 @@ var app = new Vue({
 	    	let e = this;
 			axios.get(_URL.incomes.replace('/0', '/' + newVal)).then(function (response) { 
 				e.loadStatistic('income', response.data);
+				e.setProfitTotal(response.data, 1, newVal)
 			})
 			axios.get(_URL.outcomes.replace('/0', '/' + newVal)).then(function (response) { 
 				e.loadStatistic('outcome', response.data);
+				e.setProfitTotal(response.data, -1, newVal)
 			})
 			axios.get(_URL.reservations.replace('/0', '/' + newVal)).then(function (response) { 
 				e.loadStatistic('reservation', response.data);
+				e.setReservationTotal(response.data)
 			})						
     	}  	
     }

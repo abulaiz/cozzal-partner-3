@@ -7,7 +7,7 @@ use App\Models\Cash;
 
 class Expenditure extends Model
 {
-	public $cash_id;
+	public $cash_id, $attachment;
 
     public static function boot()
     {
@@ -20,7 +20,7 @@ class Expenditure extends Model
 	            $cash->balance -= $model->price*$model->qty;
 	            $cash->save();
 	            $description = $model->unit_id == null ? "11" : "10/".$model->unit_id;
-	            $model->cash_mutation_id = $cash->saveMutation($old_balance, $description);
+	            $model->cash_mutation_id = $cash->saveMutation($old_balance, $description, $model->attachment);
         	}
         });        
 
@@ -45,7 +45,8 @@ class Expenditure extends Model
 		$this->is_paid = $type == '1';
     }
 
-    public function setCash($cash_id){
+    public function setCash($cash_id, $attachment){
     	$this->cash_id = $cash_id;
+        $this->attachment = $attachment;
     }
 }

@@ -19,6 +19,8 @@ import DatePicker from 'vue2-datepicker';
 import 'vue2-datepicker/index.css';
 Vue.component('date-picker', DatePicker);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 var _URL = {};
 _URL['cash'] = $("#api-url-cashes").text();
 _URL['apartment'] = $("#api-url-apartments").text();
@@ -28,6 +30,8 @@ _URL['store'] = $("#api-url-expenditures-store").text();
 $(".rm").remove();
 
 var submit_attempt = 0;
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 function _catch_with_toastr(message){
     _leftAlert('Sorry !', message, 'error', false);
@@ -69,16 +73,18 @@ function form_onsubmit(state = true){
 
 function submit(){
     form_onsubmit();
-    axios.post(_URL.store , {
-        price : step2.$data.price,
-        qty : step2.$data.qty,
-        description : step2.$data.description,
-        cash_id : step2.$data.cash == null ? null : step2.$data.cash.id,
-        due_at : step2.$data.due_at,
-        unit_id : step2.$data.unit == null ? null : step2.$data.unit.id,
-        expenditure_type : step2.$data.type.id.toString(),
-        expenditure_necessary : step2.$data.necessary.id.toString()
-    }).then(function (response) {
+    let data = new FormData();
+    data.append('price', step2.$data.price)
+    data.append('qty', step2.$data.qty)
+    data.append('description', step2.$data.description)
+    data.append('cash_id', step2.$data.cash == null ? null : step2.$data.cash.id )
+    data.append('due_at', step2.$data.due_at)
+    data.append('unit_id', step2.$data.unit == null ? null : step2.$data.unit.id)
+    data.append('expenditure_type', step2.$data.type.id.toString())
+    data.append('expenditure_necessary', step2.$data.necessary.id.toString())
+    data.append('attachment', step2.$data.attachment == null ? '' : step2.$data.attachment)
+
+    axios.post(_URL.store , data, axios_config).then( (response) => {
         let res = response.data;
         if(res.success){
             window._setMessage(res.direct_path, res.message, 'success');
@@ -93,7 +99,7 @@ function submit(){
             form_onsubmit(false);
         }
     })
-    .catch(function(){ form_onsubmit(false); _leftAlert('Error', 'Something wrong, try again', 'error'); })  
+    .catch( () => { form_onsubmit(false); _leftAlert('Error', 'Something wrong, try again', 'error'); })  
 }
 
 $(".number-tab-steps").steps({
@@ -154,7 +160,8 @@ var step2 = new Vue({
         cash : null,
         type : '',
         necessary : '',
-        unit_loaded : false,        
+        unit_loaded : false,   
+        attachment : null,     
         cleaveOption : {
             numeral: true,
             numeralThousandsGroupStyle: 'thousand'            
@@ -162,7 +169,7 @@ var step2 = new Vue({
     },
     methods : {
         notBeforeToday(date) {
-          return new Date();
+          return date < new Date();
         },
         setData(type, necessary){
             this.type = type;

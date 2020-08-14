@@ -114,4 +114,8 @@ Route::group(['middleware' => ['auth']], function () {
 	Route::get('/payment/paid', function(){
 		return view('contents.payment.paid');
 	})->name('payment.paid');
+
+	// File response
+	// Payment Slip Image
+	Route::get('/payment_slip/{cash_mutation_id}', 'CashController@payment_slip')->name('payment_slip');
 });

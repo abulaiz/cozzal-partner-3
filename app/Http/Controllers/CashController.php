@@ -8,6 +8,7 @@ use App\Models\CashMutation;
 use Datatables;
 use Validator;
 use App\Libs\CashUtility;
+use Storage;
 
 class CashController extends Controller
 {
@@ -26,7 +27,7 @@ class CashController extends Controller
      */
     public function index()
     {
-        $data = Cash::all();
+        $data = Cash::where('active', true)->get();
         return response()->json($data);
     }
 
@@ -50,21 +51,22 @@ class CashController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255|unique:cashes,name',
-            'balance' => 'required|numeric|min:1'
+            'balance' => 'required|numeric|min:1',
+            'attachment' => 'required'
         ]);
 
         $validator->setAttributeNames([
-            'name' => 'Name', 'balance' => 'Balance',
+            'name' => 'Name', 'balance' => 'Balance', 'attachment' => "Payment Slip"
         ]);
 
         if( $validator->fails() )
             return response()->json(['errors' => $validator->errors()->all(), 'success' => false]);   
-  
+
         $data = new Cash();
         $data->name = $request->name;
         $data->balance  = $request->balance;
         $data->save();
-        $data->saveMutation(0, "2");
+        $data->saveMutation(0, "2", $request->file('attachment'));
 
         return response()->json(['success' => true]);
     }
@@ -104,11 +106,12 @@ class CashController extends Controller
 
         $validator = Validator::make($request->all(), [
             'fund' => 'required|numeric|min:1',
-            'id' => 'required|exists:cashes,id'
+            'id' => 'required|exists:cashes,id',
+            'attachment' => 'required'
         ]);
 
         $validator->setAttributeNames([
-            'id' => 'Referenced Data', 'fund' => 'Fund',
+            'id' => 'Referenced Data', 'fund' => 'Fund', 'attachment' => "Payment Slip"
         ]);
 
         if( $validator->fails() )
@@ -121,7 +124,7 @@ class CashController extends Controller
 
         $data->balance += (int)$request->fund;
         $data->save();
-        $data->saveMutation($old_value, $type);
+        $data->saveMutation($old_value, $type, $request->file('attachment'));
 
         return response()->json(['success' => true]);        
     }
@@ -142,7 +145,9 @@ class CashController extends Controller
         if( (int)$data->balance > 0 )
             return response()->json(['errors' => ['Cash not empty, make sure balance is 0'], 'success' => false]);
 
-        $data->delete();
+        $data->active = false;
+        $data->name .= " [DELETED]";
+        $data->save();
 
         return response()->json(['success' => true]);   
     }
@@ -152,7 +157,10 @@ class CashController extends Controller
         return Datatables::of(CashMutation::all())
                             ->addColumn('_date', function($row){
                                 return $row->created_at;
-                            })       
+                            }) 
+                            ->addColumn('_executor', function($row){
+                                return $row->user->name;
+                            })                                  
                             ->addColumn('_cash', function($row){
                                 return $row->cash->name;
                             })
@@ -162,7 +170,10 @@ class CashController extends Controller
                             ->addColumn('_description', function($row) use ($e){
                                 return $e->cash_utility->description($row->description);
                             })
-                            ->rawColumns(['_type']) 
+                            ->addColumn('_action', function($row){
+                                return view('contents.cash.index_mutation_action')->render();
+                            })                            
+                            ->rawColumns(['_type', '_action']) 
                             ->make(true);        
     }
 
@@ -170,10 +181,12 @@ class CashController extends Controller
         $validator = Validator::make($request->all(), [
             'from_cash_id' => 'required|exists:cashes,id',
             'to_cash_id' => 'required|exists:cashes,id',
-            'fund' => 'required|numeric|min:1'
+            'fund' => 'required|numeric|min:1',
+            'attachment' => 'required'
         ]);
         $validator->setAttributeNames([
-            'from_cash_id' => 'Initial Cash', 'to_cash_id' => 'Destination Cash', 'fund' => "Fund"
+            'from_cash_id' => 'Initial Cash', 'to_cash_id' => 'Destination Cash', 
+            'fund' => "Fund", 'attachment' => 'Payment Slip'
         ]);
         if( $validator->fails() )
             return response()->json(['errors' => $validator->errors()->all(), 'success' => false]);   
@@ -195,12 +208,35 @@ class CashController extends Controller
             return response()->json(['errors' => ["Balance not enough"], 'success' => false]);
         
         $initial_cash->save();
-        $initial_cash->saveMutation($initial_cash_balance, "1");
+        $initial_cash->saveMutation($initial_cash_balance, "1", $request->file('attachment'));
 
         $destination_cash->balance += $fund;
         $destination_cash->save();
-        $destination_cash->saveMutation($destination_cash_balance, "1");
+        $destination_cash->saveMutation($destination_cash_balance, "1", $request->file('attachment'), 1);
 
         return response()->json(['success' => true]);           
+    }
+
+    public function payment_slip($cash_mutation_id){
+        $data = CashMutation::find($cash_mutation_id);
+        ob_end_clean();
+        $mime_type = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'bmp' => 'image/bmp',
+            'gif' => 'image/gif'
+        ];
+
+        $file = $data->attachment;
+        $f = explode('.', $file);
+        $ext = $f[ count($f)-1 ];
+
+        if(isset($mime_type[$ext]))
+            $mime = $mime_type[$ext];
+        else
+            $mime = 'image/png';
+
+        return response(Storage::get($data->attachment))->header('Content-Type', $mime);    
     }
 }

@@ -14,6 +14,8 @@ Vue.component('vue-loaders', VueLoaders.component);
 import Cleave from 'vue-cleave-component';
 Vue.component('cleave', Cleave);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 var _URL = {};
 _URL['index'] = $("#url-index").text();
 _URL['report'] = $("#url-report").text();
@@ -23,8 +25,11 @@ _URL['send'] = $("#api-send").text();
 _URL['pay'] = $("#api-pay").text();
 _URL['confirm'] = $("#api-confirm").text();
 _URL['reject'] = $("#api-reject").text();
+_URL['payment_slip'] = $("#url-payment-slip").text();
 
 var has_submited = 0;
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 $(".rm").remove();
 
@@ -84,11 +89,14 @@ var content = new Vue({
 					earning : reservation_total - expenditure_total,
 					additional_earning : res.paid_earning == null ? 0 : res.paid_earning - (reservation_total - expenditure_total),
 					cash : null,
+					invoice_option : '',
 					input_earning : reservation_total - expenditure_total,
 					input_description : null,
+					input_attachment : null,
 					is_paid : res.is_paid,
 					is_accepted : res.has_arranged ? res.is_accepted : true,
-					onsubmit : false
+					onsubmit : false,
+					payment_slip : res.cash_mutation_id == null ? null : _URL.payment_slip.replace('/0', `/${res.cash_mutation_id}`)
 				})
 			}
 			if(this.payments.length <= 1) $("#global-action").remove();
@@ -107,6 +115,13 @@ var content = new Vue({
 			}	
 			return res;
 		},		
+		dismiss(index){
+        	this.payments[index].onsubmit = true;	
+        	has_submited++;
+        	if(has_submited == this.payments.length){
+	            window.location = _URL.index; 
+        	}
+		},
 		send(index){
 			let e = this;
 			let data = this.payments[index];
@@ -133,7 +148,8 @@ var content = new Vue({
 		        		_leftAlert('Success !', 'Payment purpose has been sended', 'success');
 		        	}
 		        } else {
-		      		_leftAlert('Error', 'Something wrong, try again', 'error');  	
+		      		_leftAlert('Error', 'Something wrong, try again', 'error');  
+		      		this.payments[index].onsubmit = false;	
 		        }
 		    })
 		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
@@ -145,24 +161,26 @@ var content = new Vue({
 				return _catch_with_toastr("Cash required");
 			if(need_description(data.paid_earning, data.earning, data.input_earning, data.input_description))
 				return _catch_with_toastr("Description required");
+			if(data.input_attachment == null)
+				return _catch_with_toastr("Payment Slip is required")
 
-			let e = this;
 			_leftAlert('Info', 'Processing ...', 'info');
 			data.onsubmit = true;
-		    axios.post(_URL.pay , {
-		    	reservations : JSON.stringify(this.getReservations(index)),
-		    	expenditures : JSON.stringify(this.getExpenditures(index)),
-		    	total_earning : data.earning,
-		    	paid_earning : data.input_earning,
-		    	description : _str_empty(data.input_description) ? '-' : data.input_description,
-		    	owner_id : data.owner.id,
-		    	cash_id : data.cash.id,
-		    	id : data.id
-		    }).then(function (response) {
+		    let form_data = new FormData();
+		    form_data.append('reservations', JSON.stringify(this.getReservations(index)))
+		    form_data.append('expenditures', JSON.stringify(this.getExpenditures(index)))
+		    form_data.append('total_earning', data.earning)
+		    form_data.append('paid_earning', data.input_earning)
+		    form_data.append('description', _str_empty(data.input_description) ? '-' : data.input_description)
+		    form_data.append('owner_id', data.owner.id)
+		    form_data.append('cash_id', data.cash.id)
+		    form_data.append('id', data.id)
+		    form_data.append('attachment', data.input_attachment)
+		    axios.post(_URL.pay , form_data, axios_config).then( (response) => {
 		        let res = response.data;
 		        if(res.success){
 		        	has_submited++;
-		        	if(has_submited == e.payments.length){
+		        	if(has_submited == this.payments.length){
 			            window._setMessage('message.payment.index', 'Payment successfuly done', 'success');
 			            window.location = _URL.index; 
 		        	} else {
@@ -170,10 +188,10 @@ var content = new Vue({
 		        	}
 		        } else {
 		      		_leftAlert('Error', 'Source Fund not have enought balance', 'warning');
-		      		e.payments[index].onsubmit = false;	  	
+		      		this.payments[index].onsubmit = false;	  	
 		        }
 		    })
-		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); e.payments[index].onsubmit = false;})
+		    .catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); this.payments[index].onsubmit = false;})
 		},		
 		toIDR(number){
 			return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");

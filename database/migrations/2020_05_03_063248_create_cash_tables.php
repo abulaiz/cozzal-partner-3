@@ -17,17 +17,18 @@ class CreateCashTables extends Migration
             $table->increments('id');
             $table->string('name');
             $table->integer('balance');
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
 
         Schema::create('cash_mutations', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('user_id'); // author
             $table->unsignedInteger('cash_id');
             $table->integer('fund');
             $table->integer('type_mutation');
-            // $table->dateTime('date_mutation')->nullable();
             $table->string('description',5)->nullable();
-            // $table->string('note',50)->nullable();
+            $table->string('attachment');
             $table->timestamps(); 
 
             $table->foreign('cash_id')

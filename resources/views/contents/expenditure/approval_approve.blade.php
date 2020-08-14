@@ -21,6 +21,10 @@
                     v-model="cash" />                    
                 </div>
             </div> 
+            <div class="form-group" v-if="!approve_as_billing">
+                <label>Payment Slip</label>
+                <upload-image v-model="attachment"></upload-image>
+            </div>             
             <div class="form-group" v-if="approve_as_billing">
                 <label>Due at </label>
                 <div>

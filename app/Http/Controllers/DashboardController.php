@@ -120,6 +120,7 @@ class DashboardController extends Controller
     		$reservations = Reservation::whereYear('check_in', $year)
     									->whereMonth('check_in', $i)
     									->where('deleted_at', null)
+                                        ->where('is_confirmed', true)
     									->get();
 
             $income_total = 0;
@@ -133,7 +134,8 @@ class DashboardController extends Controller
     			$monthly_owner_payment += $ownerPrice;
     		}
 
-    		$income[] = $income_total ;    		$profit = $income_total  - $monthly_owner_payment;
+    		$income[] = $income_total ;    		
+            $profit = $income_total  - $monthly_owner_payment;
     		$gross_profit[] = $profit < 0 ? 0 : $profit;
     	}
     	return [

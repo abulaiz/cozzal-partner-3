@@ -14,6 +14,8 @@ Vue.component('dynamic-select', DynamicSelect);
 import Cleave from 'vue-cleave-component';
 Vue.component('cleave', Cleave);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 var _URL = {};
 _URL['index'] = $("#api-booking-index").text();
 _URL['payment_info'] = $("#api-payment-info").text();
@@ -22,6 +24,8 @@ _URL['cash'] = $("#api-cashes").text();
 _URL['payment_settlement'] = $("#api-payment-settlement").text();
 _URL['cancel'] = $("#api-booking-destroy").text();
 _URL['confirm'] = $("#api-booking-confirm").text();
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 $(".rm").remove();
 
@@ -128,7 +132,7 @@ var payment = new Vue({
             numeralThousandsGroupStyle: 'thousand'       
         },		
 		input : {
-			cash : null, fund : null
+			cash : null, fund : null, attachment : null
 		}
 	},
 	methods : {
@@ -141,43 +145,49 @@ var payment = new Vue({
 				return _catch_with_toastr('Fund not meet requirement of payment');			
 			if( this.input.fund > this.remaining_payment )
 				return _catch_with_toastr("System doesn't have refund system");			
+			if( this.input.attachment == null )
+				return _catch_with_toastr("Payment Slip is required")
 
-			let e = this;
+			let data = new FormData();
+			data.append('reservation_id', this.id);
+			data.append('cash_id', this.input.cash.id);
+			data.append('fund', this.input.fund);
+			data.append('attachment', this.input.attachment == null ? '' : this.input.attachment)
 			this.onload = true;
-		    axios.post(_URL.payment_store , {
-		    	reservation_id : this.id,
-		    	cash_id : this.input.cash.id,
-		    	fund : this.input.fund
-		    }).then(function (response) {
-		    	e.input.fund = null;
-		    	e.input.cash = null;
-		    	e.load_info(e.id);
+		    axios.post(_URL.payment_store , data, axios_config).then( (response) => {
+		    	this.input.fund = null;
+		    	this.input.cash = null;
+		    	this.input.attachment = null;
+		    	this.load_info(this.id);
 		    	_leftAlert('Success', 'Successfuly make a booking payment', 'success');
 		    })
-		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
+		    .catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
 		},
 		settlement(){
 			if( this.input.cash == null )
 				return _catch_with_toastr('Please select source fund');
-		
-			let e = this;
+			if( this.input.attachment == null )
+				return _catch_with_toastr("Payment Slip is required")		
+
+			let data = new FormData();
+			data.append('reservation_id', this.id)
+			data.append('cash_id', this.input.cash_id.id)
+			data.append('attachment', this.input.attachment == null ? '' : this.input.attachment)
 			this.onload = true;
-		    axios.post(_URL.payment_settlement , {
-		    	reservation_id : this.id,
-		    	cash_id : this.input.cash.id
-		    }).then(function (response) {
+		    axios.post(_URL.payment_settlement , data, axios_config).then( (response) => {
 		    	if(response.data.success){
-			    	e.input.fund = null;
-			    	e.input.cash = null;
-			    	e.load_info(e.id);
+			    	this.input.fund = null;
+			    	this.input.cash = null;
+			    	this.input.attachment = null;
+			    	this.load_info(this.id);
 			    	_leftAlert('Success', 'Deposit has been settled', 'success');
 		    	} else {
-			    	e.load_info(e.id);
+			    	this.load_info(this.id);
 			    	_leftAlert('Sorry', 'Balance of source fund not enought', 'warning');		    		
 		    	}
 
 		    })
-		    .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
+		    .catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
 		},
 		to_IDR(x){
 			if(x == null) x = 0; 

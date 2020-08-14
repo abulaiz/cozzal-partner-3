@@ -17,7 +17,7 @@ class BookingController extends Controller
     /* Defined type can be ... 
         'dp', 'deposit', 'payment' (normal payment / cicilan)
     */
-    private function make_payment($type, $reservation_id, $cash_id, $nominal){
+    private function make_payment($type, $reservation_id, $cash_id, $nominal, $attachment){
         $cash = Cash::find($cash_id);
         $initial_balance = $cash->balance;
         $cash->balance += (int)$nominal;
@@ -25,7 +25,7 @@ class BookingController extends Controller
         $prefix_status = [
             'dp' => '6', 'deposit' => '12', 'payment' => '6'
         ];
-        $mutation = $cash->saveMutation($initial_balance, $prefix_status[$type]."/".$reservation_id );        
+        $mutation = $cash->saveMutation($initial_balance, $prefix_status[$type]."/".$reservation_id, $attachment);
         
         $is_dp = $type == 'dp'; 
         $is_deposit = $type == 'deposit';
@@ -91,8 +91,8 @@ class BookingController extends Controller
                 "MN" => $request->rent_monthly_price,
                 "TP" => $request->rent_price_total
             ]),  
-            "mod_prices" => json_encode($request->mod_prices),
-            "days" => json_encode($request->days),          
+            "mod_prices" => $request->mod_prices,
+            "days" => $request->days,          
             "charge" => $request->charge, 
             "discount" => $discount, 
             "amount_bill" => $amount_bill,
@@ -100,10 +100,11 @@ class BookingController extends Controller
         ]);
 
         if($request->dp > 0) {
+            $attachment = $request->file('attachment');
             if($request->deposite > 0) 
-                $this->make_payment('deposit', $data->id, $request->cash_id, $request->deposite);
+                $this->make_payment('deposit', $data->id, $request->cash_id, $request->deposite, $attachment);
             if($dp > 0) 
-                $this->make_payment('dp', $data->id, $request->cash_id, $dp);
+                $this->make_payment('dp', $data->id, $request->cash_id, $dp, $attachment);
         }
 
         return response()->json([
@@ -137,7 +138,7 @@ class BookingController extends Controller
     }
 
     public function store_payment(Request $request){
-        $this->make_payment('payment', $request->reservation_id, $request->cash_id, $request->fund);
+        $this->make_payment('payment', $request->reservation_id, $request->cash_id, $request->fund, $request->file('attachment'));
         return response()->json(['success' => true]);
     }
 
@@ -152,7 +153,7 @@ class BookingController extends Controller
         if($cash->balance < 0)
             return response()->json(['success' => false]);
         $cash->save();       
-        $mutation = $cash->saveMutation($initial_balance, "13/".$id ); 
+        $mutation = $cash->saveMutation($initial_balance, "13/".$id, $request->file('attachment') ); 
 
         ReservationPayment::create([
             "reservation_id"=> $id,

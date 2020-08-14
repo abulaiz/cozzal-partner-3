@@ -93,7 +93,7 @@
 			</div>
 			<div class="card-content collapse show">
 				<div class="card-body row">
-					<div class="col-md-3 border-right-grey border-right-lighten-2">
+					<div class="col-md-3 border-right-grey border-right-lighten-2 mb-2">
 						<div class="list-group">
 							<a href="javascript:void(0)" class="list-group-item list-group-item-action">
 								<div class="media">

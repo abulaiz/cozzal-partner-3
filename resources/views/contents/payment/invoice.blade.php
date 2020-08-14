@@ -9,9 +9,16 @@
 	<transition-group type="transition" name="fade">
 		<div class="col-md-12" v-for="(item, i) in payments" :key="i">
 			<transition name="fade">
-		        <div class="card" v-if="!item.onsubmit">          
-					<div class="card-body">
+		        <div class="card" v-if="!item.onsubmit">  
+					<div class="row" v-if="!item.has_arranged">
+						<div class="col-md-12">
+							<div style="float: right;" class="mr-1 mt-1">
+								<span class="close" @click="dismiss(i)">&times</span>
+							</div>
+						</div>
+					</div>
 
+					<div class="card-body">
 						<!-- Invoice Info -->
 			            <div class="row">
 			              <div class="col-md-6 col-sm-12 text-center text-md-left">
@@ -120,8 +127,17 @@
 				            <div class="col-md-12 row">
 				                <div class="col-md-6" v-if="!item.is_paid">
 				                	@if(!Auth::user()->hasRole('owner'))
-				                	<p class="lead" v-if="!item.has_arranged || (item.has_arranged && item.is_accepted)">Payment Resource:</p>
-				                	<div class="row" v-if="!item.has_arranged || (item.has_arranged && item.is_accepted)">
+				                	<div class="row mb-1">
+				                		<label class="col-md-12">Invoice Option</label>
+				                		<div class="col-md-11">
+				                			<select class="form-control" v-model="payments[i].invoice_option">
+				                				<option value="" selected="" disabled="">-- Select Action --</option>
+				                				<option v-if="!item.has_arranged || (item.has_arranged && item.is_accepted)" value="1">Pay Payment</option>
+				                				<option v-if="!item.has_arranged" value="2">Send Invoice</option>
+				                			</select>
+				                		</div>
+				                	</div>
+				                	<div class="row" v-if="payments[i].invoice_option == 1">
 					                    <label class="col-md-12">Cash Name</label>
 					                    <div class="col-md-11">
 						                    <dynamic-select 
@@ -131,9 +147,9 @@
 						                    placeholder="Type to search"
 						                    v-model="payments[i].cash" />                     	
 					                    </div>                  
-					                    <span v-if="!item.is_paid" class="col text-info">Cash required if want to make payment</span>
-
-					                    <div class="col-md-11 mt-1" v-if="!item.has_arranged">
+					                </div>
+					                <div class="row" v-if="payments[i].invoice_option != ''">
+					                    <div class="col-md-11 mt-1">
 						                	<label>Earning Paid</label>
 						                	<cleave class="form-control" v-model="payments[i].input_earning" 
 			                  				:options="cleave"></cleave>	                    	
@@ -144,9 +160,18 @@
 						                	<textarea class="form-control" v-model="payments[i].input_description" placeholder="Override earning reason"></textarea>	                    	
 					                    </div>
 				                  	</div>
+				                  	<div class="row" v-if="payments[i].invoice_option == 1">
+					                    <div class="col-md-11 mt-1">
+							                <label>Payment Slip</label>
+							                <upload-image v-model="payments[i].input_attachment"></upload-image>
+					                    </div>				                  		
+				                  	</div>
 				                	@endif
 				                </div>
-				                <div v-if="item.is_paid" class="col-md-6"></div>
+				                <div v-if="item.is_paid" class="col-md-6 mb-1 mt-1">
+				                	<p class="font-weight-bold">Payment Slip</p>
+				                	<img :src="item.payment_slip" style="width: 100%; height: auto;">
+				                </div> 
 				                <div class="col-md-6">
 				                  <p class="lead">Earnings</p>
 				                  <div class="table-responsive">
@@ -178,42 +203,49 @@
 			            </div>
 
 			            <div id="invoice-footer" :class="(item.role == 'owner' && (item.is_accepted || item.is_rejected) ) ? 'hidden rm' : ''">
-			              <div class="row mt-2">
-			                <div class="col-md-8 col-sm-12">
-			                </div>
-			                <div class="col-md-4 col-sm-12 text-center">
-			                  
-			                  <button type="button" class="pull-right btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="icon-target mr-1"></i>Action</button>
-			                  <div class="dropdown-menu" x-placement="bottom-start">
-			                    
-			                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
-			                    @click="reject(i)"
-			                    class="dropdown-item" 
-			                    href="javascript:void(0)">
-			                    <i class="fa fa-times mr-1">
-			                    </i>Reject</a>
+			              	<div class="row mt-2">
+				                <div class="col-md-8 col-sm-12">
+				                </div>
+				                <div class="col-md-4 col-sm-12 text-center">
+				                  
+				                    <a v-if="payments[i].invoice_option == 1 && !item.is_paid && item.is_accepted && item.role == 'manager'" 
+				                    @click="pay(i)" href="javascript:void(0)" 
+				                    class="pull-right btn btn-info">
+				                    <i class="fa fa-money mr-1"></i> Pay Payment</a>
 
-			                    <a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
-			                    @click="confirm(i)"
-			                    class="dropdown-item" 
-			                    href="javascript:void(0)">
-			                    <i class="fa fa-check mr-1"></i>Confim</a>
+				                    <a v-if="payments[i].invoice_option == 2 && !item.has_arranged" 
+				                    @click="send(i)" href="javascript:void(0)"  
+				                    class="pull-right btn btn-info">
+				                    <i class="fa fa-paper-plane mr-1"></i> Send Invoice</a>     
 
-			                    <a v-if="!item.is_paid && item.is_accepted && item.role == 'manager'" 
-			                    @click="pay(i)"
-			                    class="dropdown-item">
-			                    <i class="fa fa-money mr-1"></i> Pay Payment</a>
 
-			                    <a v-if="!item.has_arranged" 
-			                    @click="send(i)" 
-			                    class="dropdown-item">
-			                    <i class="fa fa-paper-plane mr-1"></i> Send Invoice</a>     
+									<button type="button" class="pull-right btn btn-info dropdown-toggle" 
+									v-if="(item.is_paid || !item.is_accepted || !item.role == 'manager' ) && item.has_arranged"
+									data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="icon-target mr-1"></i>Action
+									</button>
+									<div class="dropdown-menu" x-placement="bottom-start">
 
-			                    <a v-if="item.has_arranged && item.role != 'owner'" href="{{ route('payment.invoice.download', $id) }}" target="blank" class="dropdown-item"><i class="fa fa-print mr-1"></i> Download/Print Invoice</a>
+										<a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
+										@click="reject(i)"
+										class="dropdown-item" 
+										href="javascript:void(0)">
+										<i class="fa fa-times mr-1">
+										</i>Reject</a>
 
-			                  </div>
-			                </div>
-			              </div>
+										<a v-if="item.has_arranged && !item.is_accepted && !item.is_rejected && item.role == 'owner'" 
+										@click="confirm(i)"
+										class="dropdown-item" 
+										href="javascript:void(0)">
+										<i class="fa fa-check mr-1"></i>Confim</a>
+
+										<a v-if="item.has_arranged && item.role != 'owner'" href="{{ route('payment.invoice.download', $id) }}" target="blank" class="dropdown-item">
+										<i class="fa fa-print mr-1"></i> Download/Print Invoice
+										</a>
+
+									</div>
+				                </div>
+			              	</div>
 			            </div>
 					</div>
 		        </div>			
@@ -232,6 +264,7 @@
 	<p id="api-pay">{{ route('api.payment.pay') }}</p>
 	<p id="api-confirm">{{ route('api.payment.confirm') }}</p>
 	<p id="api-reject">{{ route('api.payment.reject') }}</p>
+	<p id="url-payment-slip">{{ route('payment_slip', 0) }}</p>
 </div>
 
 @endsection

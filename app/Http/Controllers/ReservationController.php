@@ -77,7 +77,7 @@ class ReservationController extends Controller
         if($cash->balance < 0)
             return response()->json(['success' => false, 'message' => 'Balance of source fund not enought']);
         $cash->save();       
-        $mutation = $cash->saveMutation($initial_balance, "8/".$id ); 
+        $mutation = $cash->saveMutation($initial_balance, "8/".$id, $request->file('attachment') ); 
 
         ReservationPayment::create([
             "reservation_id"=> $id,

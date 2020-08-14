@@ -14,11 +14,15 @@ Vue.component('dynamic-select', DynamicSelect);
 import Cleave from 'vue-cleave-component';
 Vue.component('cleave', Cleave);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 var _URL = {};
 _URL['index'] = $("#api-canceled-index").text();
 _URL['cash'] = $("#api-cashes").text();
 _URL['destroy'] = $("#api-destroy").text();
 _URL['settlement'] = $("#api-settlement").text();
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 $(".rm").remove();
 
@@ -96,7 +100,7 @@ var payment = new Vue({
             numeralThousandsGroupStyle: 'thousand'       
         },		
 		input : {
-			cash : null, fund : null
+			cash : null, fund : null, attachment : null
 		}
 	},
 	methods : {
@@ -106,23 +110,25 @@ var payment = new Vue({
 			if( this.input.fund == null )
 				return _catch_with_toastr('Fund is required');
 			if( this.input.fund < 0 )
-				return _catch_with_toastr('Fund not meet requirement of payment');			
+				return _catch_with_toastr('Fund not meet requirement of payment');
+			if( this.input.attachment == null )
+				return _catch_with_toastr("Payment Slip is required")						
 
-			let e = this;
-			axios.post(_URL.settlement , {
-				reservation_id : this.id,
-				cash_id : this.input.cash.id,
-				fund : this.input.fund
-			}).then(function (response) {
+			let data = new FormData();
+			data.append('reservation_id', this.id)
+			data.append('cash_id', this.input.cash.id)
+			data.append('fund', this.input.fund)
+			data.append('attachment', this.input.attachment)
+			axios.post(_URL.settlement , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'DP has been settled !', 'info');
-					e.$refs.close.click();
+					this.$refs.close.click();
 					Table.ajax.reload();
 				} else {
 					_leftAlert('Sorry', response.data.message, 'warning');
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })			
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })			
 		},
 		setId(id){
 			this.id = id;

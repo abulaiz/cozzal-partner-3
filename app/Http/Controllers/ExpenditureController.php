@@ -102,6 +102,8 @@ class ExpenditureController extends Controller
         if($request->expenditure_type == '1'){
             $v_rules['cash_id'] = 'required|exists:cashes,id';
             $v_name['cash_id'] = "Source Fund";
+            $v_rules['attachment'] = 'required';
+            $v_name['attachment'] = 'Payment Slip';
         } elseif( $request->expenditure_type == '2' ){
             $v_rules['due_at'] = 'required|date';
             $v_name['due_at'] = "Due At";
@@ -128,10 +130,10 @@ class ExpenditureController extends Controller
         $data->price = $request->price;
         $data->qty = $request->qty;
         $data->description = $request->description;
-        $data->unit_id = $request->unit_id;
-        $data->due_at = $request->due_at;
+        $data->unit_id = $request->unit_id == "null" ? null : $request->unit_id;
+        $data->due_at = $request->due_at ==  "null" ? null : $request->due_at; 
         $data->setType($request->expenditure_type);
-        $data->setCash($request->cash_id);
+        $data->setCash($request->cash_id, $request->file('attachment'));
         $data->save();
 
         $type = $request->expenditure_type;
@@ -192,7 +194,7 @@ class ExpenditureController extends Controller
             if($cash->balance < ($data->price * $data->qty))
                 return response()->json(['success' => false, 'message' => 'Balance of source fund is not enough']);    
             $data->setType("1");
-            $data->setCash($request->cash_id);           
+            $data->setCash($request->cash_id, $request->file('attachment'));           
         } elseif($type == '2'){
             if($request->due_at == null)
                 return response()->json(['success' => false, 'message' => 'Due date is required !']);
@@ -213,7 +215,7 @@ class ExpenditureController extends Controller
         if($cash->balance < ($data->price * $data->qty))
             return response()->json(['success' => false, 'message' => 'Balance of source fund is not enough']);    
         $data->setType("1");
-        $data->setCash($request->cash_id);       
+        $data->setCash($request->cash_id, $request->file('attachment'));       
         $data->save();
         return response()->json(['success' => true]);                              
     }

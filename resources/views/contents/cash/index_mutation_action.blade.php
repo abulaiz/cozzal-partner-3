@@ -1,0 +1,1 @@
+<a onclick="window.detail(this)" class="btn btn-outline-info btn-sm" href="javascript:void(0)">Detail</a>

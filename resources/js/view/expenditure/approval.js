@@ -19,6 +19,8 @@ Vue.component('date-picker', DatePicker);
 import PrettyCheck from 'pretty-checkbox-vue/check';
 Vue.component('p-check', PrettyCheck);
 
+Vue.component('upload-image', require('../../components/UploadImage.vue').default);
+
 var _URL = {};
 _URL['billing'] = $("#api-billing").text();
 _URL['non_billing'] = $("#api-non-billing").text();
@@ -33,6 +35,8 @@ function _catch_with_toastr(message){
     _leftAlert('Sorry !', message, 'error', false);
     return false;
 }
+
+const axios_config = {header : { 'Content-Type' : 'multipart/form-data' }}
 
 var Table1, Table2;
 var nav = new Vue({
@@ -125,6 +129,7 @@ var approve = new Vue({
 		},
 		id : null,
 		cash : null,
+		attachment : null,
 		approve_as_billing : false,
 		due_date : null,
 		onsubmit : false
@@ -141,27 +146,38 @@ var approve = new Vue({
 			this.approve_as_billing = false;
 			this.due_date = null;
 			this.cash = null;
+			this.attachment = null;
 		},
 		submit(){	
-			let e = this;
+			if(this.approve_as_billing){
+				if(this.due_date == null)
+					return _catch_with_toastr("Due date is required")
+			} else {
+				if(this.cash == null || this.cash == {})
+					return _catch_with_toastr("Please select source fund")
+				if(this.attachment == null)
+					return _catch_with_toastr("Payment Slip is required")
+			}
+
+			let data = new FormData();
+			data.append('id', this.id)
+			data.append('type', this.approve_as_billing ? "2" : "1")
+			data.append('cash_id', this.cash == null ? null : this.cash.id)
+			data.append('due_at', this.due_date)
+			data.append('attachment', this.attachment == null ? '' : this.attachment)
 			this.onsubmit = true;
-			axios.post(_URL.approve , {
-				id : this.id,
-				type : this.approve_as_billing ? "2" : "1",
-				cash_id : this.cash == null ? null : this.cash.id,
-				due_at : this.due_date
-			}).then(function (response) {
+			axios.post(_URL.approve , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'Your request successfuly executed', 'success');
-					e.$refs.close.click();
+					this.$refs.close.click();
 					Table2.ajax.reload();
 					window._sidebar.loadInfo();
 				} else {
 					_leftAlert('Sorry', response.data.message, 'warning');
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-			.then(function(){ e.onsubmit = false; })
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
+			.then( () => { this.onsubmit = false; })
 		}
 	}
 })
@@ -174,32 +190,39 @@ var pay = new Vue({
 		},
 		id : null,
 		cash : null,
+		attachment : null,
 		onsubmit : false
 	},
 	methods : {
 		setData(id){
 			this.id = id;
+			this.cash = null;
+			this.attachment = null;
 		},
 		submit(){
-			if( this.cash == null )
-				return _catch_with_toastr('Please select source fund');		
-			let e = this;
+			if(this.cash == null || this.cash == {})
+				return _catch_with_toastr("Please select source fund")
+			if(this.attachment == null)
+				return _catch_with_toastr("Payment Slip is required")	
+
+			let data = new FormData();
+			data.append('id', this.id)
+			data.append('cash_id', this.cash.id)
+			data.append('attachment', this.attachment)
+
 			this.onsubmit = true;
-			axios.post(_URL.pay , {
-				id : this.id,
-				cash_id : this.cash.id
-			}).then(function (response) {
+			axios.post(_URL.pay , data, axios_config).then( (response) => {
 				if(response.data.success){
 					_leftAlert('Success', 'Expenditure successfuly paid', 'success');
-					e.$refs.close.click();
+					this.$refs.close.click();
 					Table1.ajax.reload();
 					window._sidebar.loadInfo();
 				} else {
 					_leftAlert('Sorry', response.data.message, 'warning');
 				}
 			})
-			.catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
-			.then(function(){ e.onsubmit = false; })				
+			.catch( () => { _leftAlert('Error', 'Something wrong, try again', 'error'); })
+			.then( () => { this.onsubmit = false; })				
 		}
 	},
 	mounted : async function(){

@@ -88,11 +88,12 @@ class PriceHelper {
 		});
 	}
 
-	setGuestCount (value){ 
+	setGuestCount (value, callback){ 
 		this.guest_count = value 
 		let ech = this.guest_count - 5;
 		this.prices['charge'] = ech > 0 ? ech * this.unit.charge : 0;			
 		this.generatePrice(false, this.prices)
+		callback( this.guest_count > 5 )
 	}
 
 	setDate (check_in, check_out){

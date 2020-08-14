@@ -66,6 +66,10 @@
                   :options="cleave"></cleave>
                 <p v-if="can_settlement_deposite" class="text-info">This field for Make Payment Only</p>
             </div>
+            <div class="form-group" v-if="can_make_payment">
+                <label>Payment Slip</label>
+                <upload-image v-model="input.attachment"></upload-image>
+            </div>               
         </div>
         </transition>
         

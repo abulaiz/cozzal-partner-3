@@ -21,6 +21,10 @@
                 <cleave class="form-control" v-model="input.fund" 
                   :options="cleave"></cleave>
             </div>
+            <div class="form-group">
+                <label>Payment Slip</label>
+                <upload-image v-model="input.attachment"></upload-image>
+            </div>             
         </div>
         <div class="modal-footer insert-section">
             <button v-if="!onsubmit" type="button" class="btn btn-outline-success" data-dismiss="modal">Back</button>

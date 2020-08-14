@@ -11,4 +11,8 @@ class CashMutation extends Model
     public function cash(){
     	return $this->belongsTo('App\Models\Cash');
     }
+
+    public function user(){
+    	return $this->belongsTo('App\User');
+    }
 }

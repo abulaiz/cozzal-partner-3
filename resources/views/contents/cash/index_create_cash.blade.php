@@ -15,6 +15,10 @@
                     <cleave class="form-control" v-model="balance" :options="cleaveOption"></cleave>    
                 </div>
             </div>
+            <div class="form-group">
+                <label>Payment Slip</label>
+                <upload-image v-model="attachment"></upload-image>
+            </div>
         </div>
         <div class="modal-footer">
             <button v-show="!onsubmit" ref="closeModal" type="button" class="btn btn-outline-success" data-dismiss="modal">Cancel</button>
