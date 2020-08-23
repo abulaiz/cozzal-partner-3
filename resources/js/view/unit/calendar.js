@@ -238,7 +238,26 @@ var price_edit = new Vue({
          this.owner_price = owner_price;
          this.rent_price = price;
          this.id = id;
-      },      
+      }, 
+      remove : function(){
+         let e = this;
+         e.onsubmit = true;
+         axios.post(_URL.delete_pr , {
+            id : e.id
+         }).then(function (response) {
+            if(response.data.success){
+               _leftAlert('Success', 'Data successfuly deleted !', 'success');
+               loadCalendar();
+               e.$refs.closeModal.click();
+            } else {
+               for(let i in response.data.errors){
+                  _leftAlert('Warning !', response.data.errors[i], 'warning', false);
+               }
+            }
+         })
+         .catch(function(){ _leftAlert('Error', 'Something wrong, try again', 'error'); })
+         .then(function(){ e.onsubmit = false; })     
+      },           
       submit : function(){
          let e = this;
          e.onsubmit = true;

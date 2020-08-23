@@ -192,7 +192,7 @@
               </div>
               <div v-show="show.charge" class="col-md-6">
                 <div class="form-group">
-                  <label>Charge : @{{ show.charge ? 'anjay' : 'tai' }}</label>
+                  <label>Charge :</label>
                   <cleave class="form-control" v-model="price.charge" 
                   :options="cleave"></cleave>
                 </div>
