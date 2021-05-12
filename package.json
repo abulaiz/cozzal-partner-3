@@ -24,7 +24,7 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
-        "chart.js": "^2.9.3",
+        "chart.js": "^2.9.4",
         "echarts": "^4.8.0",
         "feature-viscovery": "^0.5.5",
         "pretty-checkbox-vue": "^1.1.9",
